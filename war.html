@@ -1,0 +1,571 @@
+
+<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚔️ Мировая война</title>
+<style>
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+body {
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2a 100%);
+min-height: 100vh;
+padding: 20px;
+}
+.container {
+max-width: 800px;
+margin: 0 auto;
+}
+h1 {
+color: #ffd700;
+text-align: center;
+margin-bottom: 20px;
+}
+.back-btn {
+display: inline-block;
+padding: 10px 20px;
+background: #ffd700;
+color: #1a0a0a;
+text-decoration: none;
+border-radius: 8px;
+font-weight: bold;
+margin-bottom: 20px;
+}
+.back-btn:hover {
+transform: scale(1.05);
+}
+.card {
+background: rgba(30,10,10,0.9);
+border-radius: 15px;
+padding: 25px;
+margin-bottom: 20px;
+box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+border: 1px solid #ffd70033;
+}
+.btn {
+padding: 12px 25px;
+border: none;
+border-radius: 8px;
+font-size: 16px;
+font-weight: 600;
+cursor: pointer;
+transition: all 0.3s;
+color: #1a0a0a;
+text-transform: uppercase;
+}
+.btn-spin {
+background: linear-gradient(135deg, #ffd700, #f0a500);
+}
+.btn-spin:hover {
+transform: scale(1.05);
+}
+.btn-reset {
+background: linear-gradient(135deg, #ff4444, #cc0000);
+color: white;
+}
+.btn-reset:hover {
+transform: scale(1.05);
+}
+.btn-game {
+background: linear-gradient(135deg, #aa66ff, #7733cc);
+color: white;
+}
+.btn-game:hover {
+transform: scale(1.05);
+}
+.message-box {
+padding: 15px;
+border-radius: 8px;
+margin: 10px 0;
+text-align: center;
+font-weight: bold;
+}
+.message-box.win {
+background: rgba(255,215,0,0.2);
+color: #ffd700;
+border: 1px solid #ffd70044;
+}
+.message-box.lose {
+background: rgba(255,0,0,0.2);
+color: #ff6666;
+border: 1px solid #ff000044;
+}
+.message-box.info {
+background: rgba(68,170,255,0.2);
+color: #66bbff;
+border: 1px solid #44aaff44;
+}
+
+<h1>⚔️ МИРОВАЯ ВОЙНА</h1>
+<div style="color:#aa8866; text-align:center; margin-bottom:15px;">
+    <p><strong style="color:#ffd700;">Правила:</strong> Захватывайте территории врага. Игрок (🛡️) атакует врага (⚔️).</p>
+    <p>💰 Ставка: 100₽ за ход. Захватите всю карту чтобы победить!</p>
+</div>
+<div id="warStatus" style="text-align:center; color:#ffd700; margin-bottom:10px;">Ход: Игрок</div>
+<div id="warGrid" style="display:grid; grid-template-columns:repeat(6,1fr); gap:10px; max-width:500px; margin:20px auto;"></div>
+<div style="text-align:center;">
+    <button class="btn btn-reset" onclick="initWar()">🔄 Новая игра</button>
+</div>
+<div id="warMessage" class="message-box info" style="text-align:center;">Начинайте игру</div>
+<script>
+let warBoard = [];
+let warTurn = 'player';
+let warGameOver = false;
+
+const countries = [
+    '🇺🇸', '🇬🇧', '🇫🇷', '🇩🇪', '🇷🇺', '🇨🇳',
+    '🇯🇵', '🇮🇳', '🇧🇷', '🇦🇺', '🇨🇦', '🇮🇹'
+];
+
+function initWar() {
+    warBoard = [];
+    for (let i = 0; i < 6; i++) {
+        warBoard[i] = [];
+        for (let j = 0; j < 6; j++) {
+            const idx = i * 6 + j;
+            warBoard[i][j] = {
+                country: countries[idx % countries.length],
+                owner: Math.random() < 0.5 ? 'player' : 'enemy',
+                troops: 1 + Math.floor(Math.random() * 3)
+            };
+        }
+    }
+    warTurn = 'player';
+    warGameOver = false;
+    renderWar();
+    document.getElementById('warStatus').textContent = 'Ход: Игрок';
+    document.getElementById('warMessage').textContent = 'Начинайте игру';
+    document.getElementById('warMessage').className = 'message-box info';
+}
+
+function renderWar() {
+    const grid = document.getElementById('warGrid');
+    grid.innerHTML = '';
+    for (let i = 0; i < 6; i++) {
+        for (let j = 0; j < 6; j++) {
+            const cell = document.createElement('div');
+            const data = warBoard[i][j];
+            const isPlayer = data.owner === 'player';
+            cell.style.cssText = `
+                padding: 15px;
+                background: ${isPlayer ? 'rgba(68,170,255,0.2)' : 'rgba(255,68,68,0.2)'};
+                border: 2px solid ${isPlayer ? '#44aaff44' : '#ff444444'};
+                border-radius: 8px;
+                text-align: center;
+                cursor: ${isPlayer && warTurn === 'player' && !warGameOver ? 'pointer' : 'default'};
+                transition: all 0.3s;
+                min-height: 80px;
+            `;
+            cell.innerHTML = `
+                <div style="font-size:2em;">${data.country}</div>
+                <div style="color:${isPlayer ? '#44aaff' : '#ff4444'}; font-weight:bold;">
+                    🪖 ${data.troops}
+                </div>
+            `;
+            if (isPlayer && warTurn === 'player' && !warGameOver) {
+                cell.onclick = () => warAttack(i, j);
+                cell.onmouseover = () => cell.style.transform = 'scale(1.05)';
+                cell.onmouseout = () => cell.style.transform = 'scale(1)';
+            }
+            grid.appendChild(cell);
+        }
+    }
+}
+
+function warAttack(row, col) {
+    if (warGameOver || warTurn !== 'player') return;
+
+    const source = warBoard[row][col];
+    if (source.owner !== 'player') return;
+    if (source.troops < 2) {
+        document.getElementById('warMessage').textContent = '❌ Недостаточно войск! Нужно минимум 2';
+        document.getElementById('warMessage').className = 'message-box lose';
+        return;
+    }
+
+    // Находим вражеские территории рядом
+    const targets = [];
+    const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
+    for (let [dr, dc] of dirs) {
+        const nr = row + dr;
+        const nc = col + dc;
+        if (nr >= 0 && nr < 6 && nc >= 0 && nc < 6) {
+            if (warBoard[nr][nc].owner === 'enemy') {
+                targets.push([nr, nc]);
+            }
+        }
+    }
+
+    if (targets.length === 0) {
+        document.getElementById('warMessage').textContent = '❌ Нет вражеских территорий рядом!';
+        document.getElementById('warMessage').className = 'message-box lose';
+        return;
+    }
+
+    // Атака
+    const target = targets[Math.floor(Math.random() * targets.length)];
+    const [tr, tc] = target;
+    const enemy = warBoard[tr][tc];
+
+    const attackPower = source.troops;
+    const defensePower = enemy.troops;
+
+    if (attackPower > defensePower) {
+        // Победа
+        enemy.owner = 'player';
+        enemy.troops = attackPower - defensePower;
+        source.troops = 1;
+        document.getElementById('warMessage').textContent = `⚔️ Победа! Захвачена ${enemy.country}`;
+        document.getElementById('warMessage').className = 'message-box win';
+    } else {
+        // Поражение
+        source.troops = 1;
+        document.getElementById('warMessage').textContent = `😢 Поражение! Потеряно ${attackPower} войск`;
+        document.getElementById('warMessage').className = 'message-box lose';
+    }
+
+    warTurn = 'enemy';
+    renderWar();
+    document.getElementById('warStatus').textContent = 'Ход: Враг';
+
+    // Проверка победы
+    let playerCount = 0;
+    let enemyCount = 0;
+    for (let i = 0; i < 6; i++) {
+        for (let j = 0; j < 6; j++) {
+            if (warBoard[i][j].owner === 'player') playerCount++;
+            else enemyCount++;
+        }
+    }
+
+    if (enemyCount === 0) {
+        warGameOver = true;
+        document.getElementById('warMessage').textContent = '🏆 ПОБЕДА! Вся карта захвачена!';
+        document.getElementById('warMessage').className = 'message-box win';
+        return;
+    }
+
+    // Ход врага
+    setTimeout(() => {
+        enemyTurn();
+    }, 800);
+}
+
+function enemyTurn() {
+    if (warGameOver) return;
+
+    // Находим вражеские территории
+    const enemies = [];
+    for (let i = 0; i < 6; i++) {
+        for (let j = 0; j < 6; j++) {
+            if (warBoard[i][j].owner === 'enemy' && warBoard[i][j].troops >= 2) {
+                enemies.push([i, j]);
+            }
+        }
+    }
+
+    if (enemies.length === 0) {
+        warGameOver = true;
+        document.getElementById('warMessage').textContent = '🏆 ПОБЕДА! Вся карта захвачена!';
+        document.getElementById('warMessage').className = 'message-box win';
+        return;
+    }
+
+    // Враг атакует
+    const enemy = enemies[Math.floor(Math.random() * enemies.length)];
+    const [er, ec] = enemy;
+    const source = warBoard[er][ec];
+
+    const targets = [];
+    const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
+    for (let [dr, dc] of dirs) {
+        const nr = er + dr;
+        const nc = ec + dc;
+        if (nr >= 0 && nr < 6 && nc >= 0 && nc < 6) {
+            if (warBoard[nr][nc].owner === 'player') {
+                targets.push([nr, nc]);
+            }
+        }
+    }
+
+    if (targets.length > 0) {
+        const target = targets[Math.floor(Math.random() * targets.length)];
+        const [tr, tc] = target;
+        const enemyTarget = warBoard[tr][tc];
+
+        if (source.troops > enemyTarget.troops) {
+            enemyTarget.owner = 'enemy';
+            enemyTarget.troops = source.troops - enemyTarget.troops;
+            source.troops = 1;
+            document.getElementById('warMessage').textContent = `⚔️ Враг захватил ${enemyTarget.country}`;
+            document.getElementById('warMessage').className = 'message-box lose';
+        } else {
+            source.troops = 1;
+        }
+    }
+
+    warTurn = 'player';
+    renderWar();
+    document.getElementById('warStatus').textContent = 'Ход: Игрок';
+
+    // Проверка победы врага
+    let playerCount = 0;
+    for (let i = 0; i < 6; i++) {
+        for (let j = 0; j < 6; j++) {
+            if (warBoard[i][j].owner === 'player') playerCount++;
+        }
+    }
+
+    if (playerCount === 0) {
+        warGameOver = true;
+        document.getElementById('warMessage').textContent = '💀 ПОРАЖЕНИЕ! Все территории захвачены врагом';
+        document.getElementById('warMessage').className = 'message-box lose';
+    }
+}
+
+initWar();
+</script>
+
+</style>
+</head>
+<body>
+<div class="container">
+<a href="index.html" class="back-btn">← Назад к играм</a>
+
+<h1>⚔️ МИРОВАЯ ВОЙНА</h1>
+<div style="color:#aa8866; text-align:center; margin-bottom:15px;">
+    <p><strong style="color:#ffd700;">Правила:</strong> Захватывайте территории врага. Игрок (🛡️) атакует врага (⚔️).</p>
+    <p>💰 Ставка: 100₽ за ход. Захватите всю карту чтобы победить!</p>
+</div>
+<div id="warStatus" style="text-align:center; color:#ffd700; margin-bottom:10px;">Ход: Игрок</div>
+<div id="warGrid" style="display:grid; grid-template-columns:repeat(6,1fr); gap:10px; max-width:500px; margin:20px auto;"></div>
+<div style="text-align:center;">
+    <button class="btn btn-reset" onclick="initWar()">🔄 Новая игра</button>
+</div>
+<div id="warMessage" class="message-box info" style="text-align:center;">Начинайте игру</div>
+<script>
+let warBoard = [];
+let warTurn = 'player';
+let warGameOver = false;
+
+const countries = [
+    '🇺🇸', '🇬🇧', '🇫🇷', '🇩🇪', '🇷🇺', '🇨🇳',
+    '🇯🇵', '🇮🇳', '🇧🇷', '🇦🇺', '🇨🇦', '🇮🇹'
+];
+
+function initWar() {
+    warBoard = [];
+    for (let i = 0; i < 6; i++) {
+        warBoard[i] = [];
+        for (let j = 0; j < 6; j++) {
+            const idx = i * 6 + j;
+            warBoard[i][j] = {
+                country: countries[idx % countries.length],
+                owner: Math.random() < 0.5 ? 'player' : 'enemy',
+                troops: 1 + Math.floor(Math.random() * 3)
+            };
+        }
+    }
+    warTurn = 'player';
+    warGameOver = false;
+    renderWar();
+    document.getElementById('warStatus').textContent = 'Ход: Игрок';
+    document.getElementById('warMessage').textContent = 'Начинайте игру';
+    document.getElementById('warMessage').className = 'message-box info';
+}
+
+function renderWar() {
+    const grid = document.getElementById('warGrid');
+    grid.innerHTML = '';
+    for (let i = 0; i < 6; i++) {
+        for (let j = 0; j < 6; j++) {
+            const cell = document.createElement('div');
+            const data = warBoard[i][j];
+            const isPlayer = data.owner === 'player';
+            cell.style.cssText = `
+                padding: 15px;
+                background: ${isPlayer ? 'rgba(68,170,255,0.2)' : 'rgba(255,68,68,0.2)'};
+                border: 2px solid ${isPlayer ? '#44aaff44' : '#ff444444'};
+                border-radius: 8px;
+                text-align: center;
+                cursor: ${isPlayer && warTurn === 'player' && !warGameOver ? 'pointer' : 'default'};
+                transition: all 0.3s;
+                min-height: 80px;
+            `;
+            cell.innerHTML = `
+                <div style="font-size:2em;">${data.country}</div>
+                <div style="color:${isPlayer ? '#44aaff' : '#ff4444'}; font-weight:bold;">
+                    🪖 ${data.troops}
+                </div>
+            `;
+            if (isPlayer && warTurn === 'player' && !warGameOver) {
+                cell.onclick = () => warAttack(i, j);
+                cell.onmouseover = () => cell.style.transform = 'scale(1.05)';
+                cell.onmouseout = () => cell.style.transform = 'scale(1)';
+            }
+            grid.appendChild(cell);
+        }
+    }
+}
+
+function warAttack(row, col) {
+    if (warGameOver || warTurn !== 'player') return;
+
+    const source = warBoard[row][col];
+    if (source.owner !== 'player') return;
+    if (source.troops < 2) {
+        document.getElementById('warMessage').textContent = '❌ Недостаточно войск! Нужно минимум 2';
+        document.getElementById('warMessage').className = 'message-box lose';
+        return;
+    }
+
+    // Находим вражеские территории рядом
+    const targets = [];
+    const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
+    for (let [dr, dc] of dirs) {
+        const nr = row + dr;
+        const nc = col + dc;
+        if (nr >= 0 && nr < 6 && nc >= 0 && nc < 6) {
+            if (warBoard[nr][nc].owner === 'enemy') {
+                targets.push([nr, nc]);
+            }
+        }
+    }
+
+    if (targets.length === 0) {
+        document.getElementById('warMessage').textContent = '❌ Нет вражеских территорий рядом!';
+        document.getElementById('warMessage').className = 'message-box lose';
+        return;
+    }
+
+    // Атака
+    const target = targets[Math.floor(Math.random() * targets.length)];
+    const [tr, tc] = target;
+    const enemy = warBoard[tr][tc];
+
+    const attackPower = source.troops;
+    const defensePower = enemy.troops;
+
+    if (attackPower > defensePower) {
+        // Победа
+        enemy.owner = 'player';
+        enemy.troops = attackPower - defensePower;
+        source.troops = 1;
+        document.getElementById('warMessage').textContent = `⚔️ Победа! Захвачена ${enemy.country}`;
+        document.getElementById('warMessage').className = 'message-box win';
+    } else {
+        // Поражение
+        source.troops = 1;
+        document.getElementById('warMessage').textContent = `😢 Поражение! Потеряно ${attackPower} войск`;
+        document.getElementById('warMessage').className = 'message-box lose';
+    }
+
+    warTurn = 'enemy';
+    renderWar();
+    document.getElementById('warStatus').textContent = 'Ход: Враг';
+
+    // Проверка победы
+    let playerCount = 0;
+    let enemyCount = 0;
+    for (let i = 0; i < 6; i++) {
+        for (let j = 0; j < 6; j++) {
+            if (warBoard[i][j].owner === 'player') playerCount++;
+            else enemyCount++;
+        }
+    }
+
+    if (enemyCount === 0) {
+        warGameOver = true;
+        document.getElementById('warMessage').textContent = '🏆 ПОБЕДА! Вся карта захвачена!';
+        document.getElementById('warMessage').className = 'message-box win';
+        return;
+    }
+
+    // Ход врага
+    setTimeout(() => {
+        enemyTurn();
+    }, 800);
+}
+
+function enemyTurn() {
+    if (warGameOver) return;
+
+    // Находим вражеские территории
+    const enemies = [];
+    for (let i = 0; i < 6; i++) {
+        for (let j = 0; j < 6; j++) {
+            if (warBoard[i][j].owner === 'enemy' && warBoard[i][j].troops >= 2) {
+                enemies.push([i, j]);
+            }
+        }
+    }
+
+    if (enemies.length === 0) {
+        warGameOver = true;
+        document.getElementById('warMessage').textContent = '🏆 ПОБЕДА! Вся карта захвачена!';
+        document.getElementById('warMessage').className = 'message-box win';
+        return;
+    }
+
+    // Враг атакует
+    const enemy = enemies[Math.floor(Math.random() * enemies.length)];
+    const [er, ec] = enemy;
+    const source = warBoard[er][ec];
+
+    const targets = [];
+    const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
+    for (let [dr, dc] of dirs) {
+        const nr = er + dr;
+        const nc = ec + dc;
+        if (nr >= 0 && nr < 6 && nc >= 0 && nc < 6) {
+            if (warBoard[nr][nc].owner === 'player') {
+                targets.push([nr, nc]);
+            }
+        }
+    }
+
+    if (targets.length > 0) {
+        const target = targets[Math.floor(Math.random() * targets.length)];
+        const [tr, tc] = target;
+        const enemyTarget = warBoard[tr][tc];
+
+        if (source.troops > enemyTarget.troops) {
+            enemyTarget.owner = 'enemy';
+            enemyTarget.troops = source.troops - enemyTarget.troops;
+            source.troops = 1;
+            document.getElementById('warMessage').textContent = `⚔️ Враг захватил ${enemyTarget.country}`;
+            document.getElementById('warMessage').className = 'message-box lose';
+        } else {
+            source.troops = 1;
+        }
+    }
+
+    warTurn = 'player';
+    renderWar();
+    document.getElementById('warStatus').textContent = 'Ход: Игрок';
+
+    // Проверка победы врага
+    let playerCount = 0;
+    for (let i = 0; i < 6; i++) {
+        for (let j = 0; j < 6; j++) {
+            if (warBoard[i][j].owner === 'player') playerCount++;
+        }
+    }
+
+    if (playerCount === 0) {
+        warGameOver = true;
+        document.getElementById('warMessage').textContent = '💀 ПОРАЖЕНИЕ! Все территории захвачены врагом';
+        document.getElementById('warMessage').className = 'message-box lose';
+    }
+}
+
+initWar();
+</script>
+
+</div>
+</body>
+</html>

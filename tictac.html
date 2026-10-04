@@ -1,0 +1,45 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>❌ Крестики-нолики</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:Arial;background:linear-gradient(135deg,#0a0a1a,#1a0a2a);min-height:100vh;padding:20px;}
+.container{max-width:600px;margin:0 auto;}
+h1{color:#ffd700;text-align:center;margin-bottom:20px;}
+.back-btn{display:inline-block;padding:10px 20px;background:#ffd700;color:#1a0a0a;text-decoration:none;border-radius:8px;font-weight:bold;margin-bottom:20px;}
+.back-btn:hover{transform:scale(1.05);}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;max-width:300px;margin:20px auto;}
+.cell{aspect-ratio:1;font-size:3em;background:rgba(0,0,0,0.3);border:2px solid #ffd70044;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:5px;}
+.cell:hover{background:rgba(255,215,0,0.1);}
+.cell.x{color:#44aaff;}
+.cell.o{color:#ff6b6b;}
+.status{color:#ffd700;text-align:center;margin:10px 0;}
+.btn{padding:12px 25px;border:none;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;transition:all 0.3s;color:#1a0a0a;text-transform:uppercase;}
+.btn-reset{background:linear-gradient(135deg,#ff4444,#cc0000);color:white;}
+.btn-reset:hover{transform:scale(1.05);}
+.message-box{padding:15px;border-radius:8px;margin:10px 0;text-align:center;font-weight:bold;}
+.message-box.win{background:rgba(255,215,0,0.2);color:#ffd700;border:1px solid #ffd70044;}
+.message-box.lose{background:rgba(255,0,0,0.2);color:#ff6666;border:1px solid #ff000044;}
+.message-box.info{background:rgba(68,170,255,0.2);color:#66bbff;border:1px solid #44aaff44;}
+</style>
+</head>
+<body>
+<div class="container"><a href="index.html" class="back-btn">← Назад</a><h1>❌ КРЕСТИКИ-НОЛИКИ</h1>
+<div class="status" id="status">Ход: X</div><div class="grid" id="grid"></div>
+<div style="text-align:center;"><button class="btn btn-reset" onclick="initGame()">🔄 Новая игра</button></div>
+<div id="msg" class="message-box info">Начинайте игру</div>
+<script>
+let board=[],turn='X',gameOver=false;
+function initGame(){board=['','','','','','','','',''];turn='X';gameOver=false;render();document.getElementById('status').textContent='Ход: X';document.getElementById('msg').textContent='Начинайте игру';document.getElementById('msg').className='message-box info';}
+function render(){const g=document.getElementById('grid');g.innerHTML='';board.forEach((cell,i)=>{const d=document.createElement('div');d.className='cell'+(cell?' '+cell.toLowerCase():'');d.textContent=cell;if(!cell&&!gameOver)d.onclick=()=>makeMove(i);g.appendChild(d);});}
+function makeMove(i){if(gameOver||board[i])return;board[i]=turn;render();const w=checkWinner();if(w){gameOver=true;document.getElementById('msg').textContent='🏆 Победил '+w+'!';document.getElementById('msg').className='message-box win';document.getElementById('status').textContent='Игра окончена';return;}if(!board.includes('')){gameOver=true;document.getElementById('msg').textContent='🤝 Ничья!';document.getElementById('msg').className='message-box info';document.getElementById('status').textContent='Игра окончена';return;}turn=turn==='X'?'O':'X';document.getElementById('status').textContent='Ход: '+turn;if(turn==='O'&&!gameOver){setTimeout(()=>{const empty=board.map((c,i)=>c===''?i:null).filter(i=>i!==null);if(empty.length>0){const move=empty[Math.floor(Math.random()*empty.length)];board[move]='O';render();const w2=checkWinner();if(w2){gameOver=true;document.getElementById('msg').textContent='🏆 Победил '+w2+'!';document.getElementById('msg').className='message-box win';document.getElementById('status').textContent='Игра окончена';}else if(!board.includes('')){gameOver=true;document.getElementById('msg').textContent='🤝 Ничья!';document.getElementById('msg').className='message-box info';document.getElementById('status').textContent='Игра окончена';}else{turn='X';document.getElementById('status').textContent='Ход: X';}}},300);}}
+function checkWinner(){const lines=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];for(let l of lines){const[a,b,c]=l;if(board[a]&&board[a]===board[b]&&board[a]===board[c])return board[a];}return null;}
+initGame();
+</script>
+</div>
+</body>
+</html>

@@ -1,0 +1,1007 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Городской гид</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #1a1a1a; min-height: 100vh; }
+
+        .app-wrapper { display: flex; min-height: 100vh; }
+
+        .sidebar {
+            width: 320px;
+            background: #222;
+            padding: 20px 15px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            border-right: 1px solid #333;
+        }
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-track { background: #2a2a2a; }
+        .sidebar::-webkit-scrollbar-thumb { background: #555; border-radius: 2px; }
+
+        .sidebar-brand { text-align: center; padding: 10px 0 20px 0; border-bottom: 2px solid #333; margin-bottom: 20px; }
+        .sidebar-brand h2 { font-size: 1.3em; color: #fff; }
+        .sidebar-brand h2 span { color: #888; }
+        .sidebar-brand .subtitle { font-size: 0.75em; color: #666; margin-top: 2px; }
+
+        .sidebar-search { margin-bottom: 15px; position: relative; }
+        .sidebar-search input {
+            width: 100%;
+            padding: 10px 14px 10px 40px;
+            border-radius: 10px;
+            border: 2px solid #444;
+            background: #2a2a2a;
+            color: #fff;
+            font-size: 0.9em;
+            outline: none;
+        }
+        .sidebar-search input:focus { border-color: #888; background: #333; }
+        .sidebar-search input::placeholder { color: #666; }
+        .sidebar-search .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+            font-size: 1.1em;
+        }
+        .sidebar-search .clear-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+            font-size: 1.1em;
+            cursor: pointer;
+            display: none;
+            background: none;
+            border: none;
+            color: #888;
+        }
+        .sidebar-search .clear-btn:hover { color: #fff; }
+        .sidebar-search .clear-btn.visible { display: block; }
+
+        .sidebar-city-list { max-height: calc(100vh - 350px); overflow-y: auto; margin-bottom: 15px; }
+        .sidebar-city-list::-webkit-scrollbar { width: 4px; }
+        .sidebar-city-list::-webkit-scrollbar-track { background: #2a2a2a; }
+        .sidebar-city-list::-webkit-scrollbar-thumb { background: #555; border-radius: 2px; }
+
+        .sidebar-city-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 8px;
+            color: #aaa;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85em;
+        }
+        .sidebar-city-item:hover { background: #333; color: #fff; }
+        .sidebar-city-item.active { background: #fff; color: #222; }
+        .sidebar-city-item .pop { font-size: 0.7em; color: #666; }
+        .sidebar-city-item.active .pop { color: #444; }
+
+        .no-results { text-align: center; padding: 30px 20px; color: #666; font-size: 0.9em; }
+        .no-results .big-icon { font-size: 2.5em; display: block; margin-bottom: 10px; }
+
+        .sidebar-section-title {
+            font-size: 0.7em;
+            text-transform: uppercase;
+            color: #555;
+            font-weight: 700;
+            letter-spacing: 1px;
+            padding: 8px 12px;
+            margin-top: 10px;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: #aaa;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9em;
+            margin: 2px 0;
+        }
+        .sidebar-item:hover { background: #333; color: #fff; transform: translateX(5px); }
+        .sidebar-item.active { background: #fff; color: #222; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .sidebar-item .icon { font-size: 1.2em; width: 28px; text-align: center; }
+        .sidebar-item .label { flex: 1; }
+        .sidebar-item .badge { background: #666; color: #fff; font-size: 0.65em; padding: 2px 8px; border-radius: 12px; font-weight: 600; }
+
+        .sidebar-footer {
+            padding: 10px 14px;
+            margin-top: 10px;
+            border-top: 1px solid #333;
+            font-size: 0.7em;
+            color: #555;
+            text-align: center;
+        }
+
+        .main-content {
+            margin-left: 320px;
+            flex: 1;
+            padding: 25px 35px;
+            min-height: 100vh;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .page-header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .page-header h1 { font-size: 1.8em; color: #222; }
+        .page-header .breadcrumb { font-size: 0.85em; color: #888; }
+        .page-header .breadcrumb a { color: #222; text-decoration: none; }
+        .page-header .breadcrumb a:hover { text-decoration: underline; }
+        .page-header .breadcrumb span { color: #999; }
+
+        .city-name-clickable {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #f0f0f5;
+            padding: 6px 16px 6px 18px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #ddd;
+            font-weight: 600;
+            font-size: 1em;
+            color: #222;
+            position: relative;
+        }
+        .city-name-clickable:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+            transform: scale(1.02);
+        }
+        .city-name-clickable .arrow {
+            font-size: 0.7em;
+            color: #888;
+            transition: transform 0.3s ease;
+            margin-left: 4px;
+        }
+        .city-name-clickable .arrow.open {
+            transform: rotate(180deg);
+        }
+
+        .city-dropdown-left {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+            border: 1px solid #eee;
+            min-width: 220px;
+            max-height: 350px;
+            overflow-y: auto;
+            z-index: 100;
+            padding: 8px 0;
+        }
+        .city-dropdown-left.show { display: block; }
+        .city-dropdown-left::-webkit-scrollbar { width: 4px; }
+        .city-dropdown-left::-webkit-scrollbar-track { background: #f5f5f5; }
+        .city-dropdown-left::-webkit-scrollbar-thumb { background: #ccc; border-radius: 2px; }
+
+        .city-dropdown-left-item {
+            padding: 10px 18px;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .city-dropdown-left-item:hover { background: #f0f0f5; }
+        .city-dropdown-left-item.active { background: #667eea; color: white; }
+        .city-dropdown-left-item .pop-small { font-size: 0.7em; color: #888; }
+        .city-dropdown-left-item.active .pop-small { color: rgba(255,255,255,0.7); }
+
+        .city-select-wrapper-left {
+            position: relative;
+            display: inline-block;
+        }
+
+        .city-count { font-size: 0.8em; color: #888; margin-top: 5px; }
+
+        .city-indicator {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 3px 15px;
+            border-radius: 20px;
+            font-size: 0.7em;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .info-card {
+            background: #f8f8f8;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 15px 0;
+            border: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .info-card:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+        .info-card h3 { color: #222; margin-bottom: 8px; font-size: 1.1em; }
+        .info-card p { color: #555; line-height: 1.6; font-size: 0.95em; }
+        .info-card ul { margin: 8px 15px; color: #555; }
+        .info-card ul li { margin: 3px 0; }
+
+        .city-highlight {
+            background: linear-gradient(135deg, #f0f0f0, #e8e8e8);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 15px 0;
+            border: 1px solid #ddd;
+        }
+        .city-highlight h2 { color: #222; margin-bottom: 10px; }
+        .famous { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0; }
+        .famous-tag { background: #222; color: #fff; padding: 4px 15px; border-radius: 20px; font-size: 0.8em; }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin: 15px 0;
+        }
+        .info-grid .info-item {
+            background: #f8f8f8;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #eee;
+        }
+        .info-grid .info-item .label { font-size: 0.7em; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+        .info-grid .info-item .value { font-size: 1.1em; font-weight: 600; color: #222; margin-top: 3px; }
+
+        .weather-main {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            flex-wrap: wrap;
+            padding: 15px 20px;
+            background: #f8f8f8;
+            border-radius: 15px;
+            margin: 10px 0;
+            border: 1px solid #eee;
+        }
+        .weather-main .icon { font-size: 3.5em; }
+        .weather-main .temp { font-size: 2.5em; font-weight: 700; color: #222; }
+        .weather-main .condition { font-size: 1.1em; color: #555; }
+        .weather-main .details { font-size: 0.85em; color: #888; margin-top: 3px; }
+
+        .weather-week {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin: 10px 0;
+        }
+        .weather-day {
+            background: #f8f8f8;
+            padding: 12px 8px;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid #eee;
+        }
+        .weather-day:hover { transform: scale(1.05); background: #eee; }
+        .weather-day .icon { font-size: 1.8em; }
+        .weather-day .day { font-weight: 600; margin-bottom: 3px; font-size: 0.8em; color: #222; }
+        .weather-day .temp { font-size: 1em; font-weight: 700; color: #222; }
+
+        .city-weather-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 8px;
+            padding: 12px;
+            background: #f8f8f8;
+            border-radius: 15px;
+            margin: 10px 0;
+            border: 1px solid #eee;
+        }
+        .city-weather-details .detail-item { text-align: center; padding: 5px; }
+        .city-weather-details .detail-item .label { font-size: 0.7em; color: #888; }
+        .city-weather-details .detail-item .value { font-size: 0.95em; font-weight: 600; color: #222; }
+
+        .places-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin: 10px 0;
+        }
+        .place-item {
+            background: #f8f8f8;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            border: 1px solid #eee;
+        }
+        .place-item:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.1); background: #eee; }
+        .place-item .icon { font-size: 2.2em; display: block; margin-bottom: 5px; }
+        .place-item .name { font-weight: 600; font-size: 1em; color: #222; }
+        .place-item .desc { font-size: 0.8em; color: #888; margin-top: 3px; }
+
+        .place-detail {
+            background: #f8f8f8;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 15px 0;
+            border: 1px solid #eee;
+        }
+        .place-detail h2 { color: #222; margin-bottom: 10px; }
+        .place-detail p { color: #555; line-height: 1.6; margin: 5px 0; }
+        .place-detail .tour-btn {
+            display: inline-block;
+            padding: 10px 25px;
+            background: #222;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+            margin-top: 10px;
+            text-decoration: none;
+        }
+        .place-detail .tour-btn:hover { opacity: 0.8; transform: scale(1.05); }
+
+        .map-container {
+            width: 100%;
+            height: 400px;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 2px solid #eee;
+            margin: 10px 0;
+        }
+        .map-container iframe { width: 100%; height: 100%; border: none; }
+
+        .map-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+            padding: 12px 15px;
+            background: #f8f8f8;
+            border-radius: 12px;
+            align-items: center;
+            border: 1px solid #eee;
+        }
+        .map-controls label { font-weight: 600; font-size: 0.9em; color: #222; }
+        .map-controls input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9em;
+            min-width: 150px;
+            background: #fff;
+        }
+        .map-controls button {
+            padding: 8px 20px;
+            background: #222;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .map-controls button:hover { opacity: 0.8; transform: scale(1.02); }
+        .map-controls .location-btn { background: #444; }
+
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .history-item {
+            background: #f8f8f8;
+            padding: 18px;
+            border-radius: 15px;
+            border: 1px solid #eee;
+        }
+        .history-item h3 { color: #222; margin-bottom: 8px; border-bottom: 2px solid #222; padding-bottom: 5px; }
+        .history-item ul { list-style: none; padding: 0; }
+        .history-item li { padding: 4px 0; color: #555; border-bottom: 1px solid #eee; font-size: 0.9em; }
+        .history-item li:last-child { border-bottom: none; }
+
+        .history-selector {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+            padding: 12px;
+            background: #f8f8f8;
+            border-radius: 12px;
+            border: 1px solid #eee;
+        }
+        .history-selector .history-btn {
+            padding: 8px 20px;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            background: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 13px;
+            color: #222;
+        }
+        .history-selector .history-btn:hover { transform: scale(1.05); border-color: #222; }
+        .history-selector .history-btn.active { border-color: #222; background: #222; color: #fff; }
+
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin: 10px 0;
+        }
+        .resource-item {
+            background: #f8f8f8;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid #eee;
+        }
+        .resource-item:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .resource-item .name { font-weight: 600; font-size: 0.95em; color: #222; }
+        .resource-item .desc { font-size: 0.8em; color: #888; margin: 5px 0; }
+        .resource-item a { color: #222; text-decoration: none; font-weight: 500; }
+        .resource-item a:hover { text-decoration: underline; }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 25px;
+            background: #222;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95em;
+        }
+        .back-link:hover { transform: scale(1.05); opacity: 0.8; }
+
+        .ad-section {
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 2px solid #eee;
+        }
+        .ad-section-title {
+            font-size: 0.8em;
+            color: #888;
+            text-align: center;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+        .ad-banner {
+            position: relative;
+            padding: 18px 20px;
+            border-radius: 15px;
+            color: #fff;
+            text-align: center;
+            min-height: 70px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.8s ease;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .ad-banner:hover { transform: scale(1.01); }
+        .ad-banner .ad-emoji { font-size: 2em; margin-bottom: 3px; }
+        .ad-banner .ad-brand { 
+            position: absolute;
+            top: 6px;
+            left: 12px;
+            font-size: 0.6em;
+            opacity: 0.7;
+            background: rgba(0,0,0,0.2);
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .ad-banner h3 { font-size: 1.1em; margin-bottom: 2px; color: #fff; }
+        .ad-banner p { font-size: 0.85em; margin-bottom: 5px; opacity: 0.9; color: #ddd; }
+        .ad-banner .ad-btn {
+            display: inline-block;
+            padding: 5px 20px;
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255,255,255,0.2);
+            font-size: 0.8em;
+        }
+        .ad-banner .ad-btn:hover { background: rgba(255,255,255,0.3); transform: scale(1.05); }
+        .ad-timer {
+            position: absolute;
+            top: 6px;
+            right: 12px;
+            font-size: 0.6em;
+            opacity: 0.6;
+            background: rgba(0,0,0,0.2);
+            padding: 2px 8px;
+            border-radius: 10px;
+            color: #ddd;
+        }
+        .ad-dots {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            margin-top: 5px;
+        }
+        .ad-dots .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        .ad-dots .dot:hover { transform: scale(1.2); }
+        .ad-dots .dot.active { background: #fff; transform: scale(1.1); }
+
+        .found-count {
+            padding: 5px 12px;
+            font-size: 0.75em;
+            color: #666;
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background: #222;
+            color: #fff;
+            border: none;
+            font-size: 1.5em;
+            padding: 10px 14px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .menu-toggle:hover { transform: scale(1.05); }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 999;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle { display: block; }
+            .sidebar {
+                transform: translateX(-100%);
+                width: 300px;
+            }
+            .sidebar.open { transform: translateX(0); }
+            .sidebar-overlay.active { display: block; }
+            .main-content {
+                margin-left: 0;
+                padding: 60px 15px 15px 15px;
+            }
+            .container { padding: 20px; }
+            .weather-week { grid-template-columns: repeat(4, 1fr); }
+            .weather-main { flex-direction: column; text-align: center; gap: 5px; }
+            .page-header { flex-direction: column; gap: 10px; align-items: flex-start; }
+            .page-header h1 { font-size: 1.4em; }
+            .history-selector { flex-direction: column; align-items: stretch; }
+            .map-controls { flex-direction: column; align-items: stretch; }
+            .places-grid { grid-template-columns: 1fr 1fr; }
+            .sidebar-city-list { max-height: 200px; }
+            .info-grid { grid-template-columns: 1fr 1fr; }
+            .city-dropdown-left { min-width: 180px; }
+            .ad-banner .ad-brand { display: none; }
+            .city-name-clickable { font-size: 0.9em; padding: 4px 12px; }
+        }
+
+        @media (max-width: 480px) {
+            .places-grid { grid-template-columns: 1fr; }
+            .weather-week { grid-template-columns: repeat(3, 1fr); }
+            .sidebar { width: 280px; }
+            .info-grid { grid-template-columns: 1fr; }
+            .ad-timer { display: none; }
+            .city-dropdown-left { min-width: 160px; }
+        }
+    </style>
+</head>
+<body>
+    <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <div class="app-wrapper">
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <h2>🏙️ <span>Городской гид</span></h2>
+                <div class="subtitle">Все города России</div>
+            </div>
+
+            <div class="sidebar-search">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="citySearch" placeholder="Поиск города..." oninput="filterCities()">
+                <button class="clear-btn" id="clearBtn" onclick="clearSearch()">✕</button>
+            </div>
+
+            <div id="foundCount" class="found-count">Найдено: {{ cities|length }}</div>
+
+            <div class="sidebar-city-list" id="cityList">
+                {% for city in cities %}
+                    <div class="sidebar-city-item {% if city == current_city %}active{% endif %}" 
+                         data-city="{{ city }}" onclick="changeCity('{{ city }}')">
+                        <span>{{ city }}</span>
+                        <span class="pop">{{ city_data[city].population if city in city_data else '' }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">📋 Навигация</div>
+                <a href="/" class="sidebar-item {% if current_path == '/' %}active{% endif %}">
+                    <span class="icon">🏠</span>
+                    <span class="label">О городе</span>
+                </a>
+                <a href="/weather" class="sidebar-item {% if current_path == '/weather' %}active{% endif %}">
+                    <span class="icon">🌤️</span>
+                    <span class="label">Погода</span>
+                </a>
+                <a href="/places" class="sidebar-item {% if current_path == '/places' %}active{% endif %}">
+                    <span class="icon">📍</span>
+                    <span class="label">Достопримечательности</span>
+                </a>
+                <a href="/map" class="sidebar-item {% if current_path == '/map' %}active{% endif %}">
+                    <span class="icon">🗺️</span>
+                    <span class="label">Карта города</span>
+                </a>
+                <a href="/history" class="sidebar-item {% if current_path == '/history' %}active{% endif %}">
+                    <span class="icon">📜</span>
+                    <span class="label">История</span>
+                    <span class="badge">Новое</span>
+                </a>
+            </div>
+
+            <div class="sidebar-footer">
+                © 2026 Городской гид<br>
+                {{ cities|length }} городов России
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <div class="container">
+                <div class="page-header">
+                    <div class="page-header-left">
+                        <h1>
+                            {{ page_title|default('О городе') }}
+                            <span class="city-indicator">📍</span>
+                        </h1>
+                        <div class="city-select-wrapper-left">
+                            <span class="city-name-clickable" onclick="toggleCityDropdownLeft()">
+                                <span>{{ current_city }}</span>
+                                <span class="arrow" id="cityArrowLeft">▼</span>
+                            </span>
+                            <div class="city-dropdown-left" id="cityDropdownLeft">
+                                {% for city in cities %}
+                                    <div class="city-dropdown-left-item {% if city == current_city %}active{% endif %}" 
+                                         onclick="selectCityFromLeft('{{ city }}')">
+                                        <span>{{ city }}</span>
+                                        <span class="pop-small">{{ city_data[city].population if city in city_data else '' }}</span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="city-count">🏙️ Всего городов: {{ cities|length }}</div>
+                    </div>
+                    <div class="breadcrumb">
+                        <a href="/">О городе</a>
+                        {% if current_path != "/" %}
+                            <span> → </span>
+                            <span>{{ page_title|default(current_path) }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {{ content|safe }}
+
+                <div class="ad-section">
+                    <div class="ad-section-title">— 🛍️ Рекламные предложения —</div>
+                    <div class="ad-banner" id="adBanner" onclick="window.open(document.getElementById('adBtn').href, '_blank')">
+                        <span class="ad-brand" id="adBrand">🏷️ Бренд</span>
+                        <span class="ad-timer" id="adTimer">⏱️ 5 сек</span>
+                        <div class="ad-emoji" id="adEmoji">🏙️</div>
+                        <h3 id="adTitle">Добро пожаловать!</h3>
+                        <p id="adDesc">Лучшие предложения в вашем городе</p>
+                        <a href="#" class="ad-btn" id="adBtn" target="_blank">Узнать больше</a>
+                        <div class="ad-dots" id="adDots"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function getSavedCity() {
+            try {
+                var saved = localStorage.getItem('selectedCity');
+                if (saved) return saved;
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    if (cookie.indexOf('selectedCity=') === 0) {
+                        return cookie.substring('selectedCity='.length, cookie.length);
+                    }
+                }
+                return null;
+            } catch(e) { return null; }
+        }
+
+        function saveCity(city) {
+            try {
+                localStorage.setItem('selectedCity', city);
+                var d = new Date();
+                d.setTime(d.getTime() + (30 * 24 * 60 * 60 * 1000));
+                document.cookie = 'selectedCity=' + city + '; expires=' + d.toUTCString() + '; path=/';
+            } catch(e) {}
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
+
+        function toggleCityDropdownLeft() {
+            var dropdown = document.getElementById('cityDropdownLeft');
+            var arrow = document.getElementById('cityArrowLeft');
+            dropdown.classList.toggle('show');
+            arrow.classList.toggle('open');
+        }
+
+        function selectCityFromLeft(city) {
+            document.getElementById('cityDropdownLeft').classList.remove('show');
+            document.getElementById('cityArrowLeft').classList.remove('open');
+            saveCity(city);
+            var currentPath = window.location.pathname;
+            var currentQuery = window.location.search;
+            if (currentQuery.includes('city=')) {
+                window.location.href = currentPath + '?city=' + encodeURIComponent(city);
+            } else if (currentPath === '/' || currentPath.startsWith('/city/')) {
+                window.location.href = '/city/' + encodeURIComponent(city);
+            } else {
+                window.location.href = currentPath + '?city=' + encodeURIComponent(city);
+            }
+        }
+
+        function changeCity(city) {
+            saveCity(city);
+            var currentPath = window.location.pathname;
+            var currentQuery = window.location.search;
+            if (currentQuery.includes('city=')) {
+                window.location.href = currentPath + '?city=' + encodeURIComponent(city);
+            } else if (currentPath === '/' || currentPath.startsWith('/city/')) {
+                window.location.href = '/city/' + encodeURIComponent(city);
+            } else {
+                window.location.href = currentPath + '?city=' + encodeURIComponent(city);
+            }
+        }
+
+        function filterCities() {
+            var search = document.getElementById('citySearch').value.toLowerCase().trim();
+            var items = document.querySelectorAll('.sidebar-city-item');
+            var count = 0;
+            var clearBtn = document.getElementById('clearBtn');
+
+            if (search.length > 0) {
+                clearBtn.classList.add('visible');
+            } else {
+                clearBtn.classList.remove('visible');
+            }
+
+            items.forEach(function(item) {
+                var city = item.getAttribute('data-city').toLowerCase();
+                if (city.includes(search) || search === '') {
+                    item.style.display = 'flex';
+                    count++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            document.getElementById('foundCount').textContent = 'Найдено: ' + count;
+
+            var list = document.getElementById('cityList');
+            var oldNoResults = list.querySelector('.no-results');
+            if (oldNoResults) oldNoResults.remove();
+
+            if (count === 0) {
+                var div = document.createElement('div');
+                div.className = 'no-results';
+                div.innerHTML = '<span class="big-icon">🔍</span>Город не найден<br><span style="font-size:0.8em;color:#555;">Попробуйте изменить запрос</span>';
+                list.appendChild(div);
+            }
+        }
+
+        function clearSearch() {
+            document.getElementById('citySearch').value = '';
+            document.getElementById('clearBtn').classList.remove('visible');
+            filterCities();
+            document.getElementById('citySearch').focus();
+        }
+
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(pos) {
+                    alert('📍 Ваше местоположение:\nШирота: ' + pos.coords.latitude.toFixed(4) + '\nДолгота: ' + pos.coords.longitude.toFixed(4));
+                }, function() {
+                    alert('❌ Не удалось определить ваше местоположение.');
+                });
+            } else {
+                alert('❌ Ваш браузер не поддерживает геолокацию.');
+            }
+        }
+
+        function routeToPlace() {
+            var address = document.getElementById('userAddress');
+            if (address && address.value) {
+                window.open('https://yandex.ru/maps/?rtext=~' + encodeURIComponent(address.value) + '&rtt=auto', '_blank');
+            } else {
+                alert('❌ Введите адрес для построения маршрута');
+            }
+        }
+
+        document.addEventListener('click', function(event) {
+            var wrapper = document.querySelector('.city-select-wrapper-left');
+            if (wrapper && !wrapper.contains(event.target)) {
+                document.getElementById('cityDropdownLeft').classList.remove('show');
+                document.getElementById('cityArrowLeft').classList.remove('open');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var savedCity = getSavedCity();
+            var cities = {{ cities|tojson }};
+
+            if (savedCity && cities.indexOf(savedCity) !== -1) {
+                var currentPath = window.location.pathname;
+                var currentQuery = window.location.search;
+                var currentCity = '{{ current_city }}';
+
+                if (currentCity !== savedCity && !currentQuery.includes('city=')) {
+                    if (currentPath === '/') {
+                        window.location.href = '/?city=' + encodeURIComponent(savedCity);
+                    } else if (!currentQuery.includes('city=')) {
+                        window.location.href = currentPath + '?city=' + encodeURIComponent(savedCity);
+                    }
+                }
+            }
+
+            initAdBanner();
+        });
+
+        var ads = {{ ads|tojson }};
+        var currentAdIndex = 0;
+        var adInterval = null;
+        var adTimer = 5;
+
+        function initAdBanner() {
+            var dotsContainer = document.getElementById('adDots');
+            if (!dotsContainer) return;
+            dotsContainer.innerHTML = '';
+            if (ads.length === 0) {
+                document.getElementById('adBanner').style.display = 'none';
+                return;
+            }
+            ads.forEach(function(ad, index) {
+                var dot = document.createElement('button');
+                dot.className = 'dot' + (index === 0 ? ' active' : '');
+                dot.setAttribute('data-index', index);
+                dot.onclick = function() { goToAd(index); };
+                dotsContainer.appendChild(dot);
+            });
+            showAd(0);
+            startAdRotation();
+        }
+
+        function showAd(index) {
+            var ad = ads[index];
+            document.getElementById('adBrand').textContent = '🏷️ ' + ad.brand;
+            document.getElementById('adEmoji').textContent = ad.image || ad.emoji || '🏙️';
+            document.getElementById('adTitle').textContent = ad.title;
+            document.getElementById('adDesc').textContent = ad.desc;
+            document.getElementById('adBtn').textContent = 'Перейти';
+            document.getElementById('adBtn').href = ad.link || '#';
+            document.getElementById('adBanner').style.background = ad.color || 'linear-gradient(135deg, #333, #555)';
+
+            document.querySelectorAll('.ad-dots .dot').forEach(function(dot, i) {
+                dot.classList.toggle('active', i === index);
+            });
+            adTimer = 5;
+            document.getElementById('adTimer').textContent = '⏱️ ' + adTimer + ' сек';
+        }
+
+        function goToAd(index) {
+            clearInterval(adInterval);
+            currentAdIndex = index;
+            showAd(index);
+            startAdRotation();
+        }
+
+        function startAdRotation() {
+            clearInterval(adInterval);
+            adInterval = setInterval(function() {
+                adTimer--;
+                document.getElementById('adTimer').textContent = '⏱️ ' + adTimer + ' сек';
+                if (adTimer <= 0) {
+                    currentAdIndex = (currentAdIndex + 1) % ads.length;
+                    showAd(currentAdIndex);
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

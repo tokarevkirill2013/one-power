@@ -1,0 +1,125 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🦕 Динозаврик</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:Arial;background:linear-gradient(135deg,#0a0a1a,#1a0a2a);min-height:100vh;padding:20px;}
+.container{max-width:700px;margin:0 auto;}
+h1{color:#ffd700;text-align:center;margin-bottom:20px;}
+.back-btn{display:inline-block;padding:10px 20px;background:#ffd700;color:#1a0a0a;text-decoration:none;border-radius:8px;font-weight:bold;margin-bottom:20px;}
+.back-btn:hover{transform:scale(1.05);}
+.game-wrapper{background:#1a1a2e;border-radius:10px;padding:20px;position:relative;overflow:hidden;min-height:400px;}
+.controls-top{display:flex;gap:15px;justify-content:center;margin-bottom:20px;flex-wrap:wrap;}
+.btn{padding:12px 25px;border:none;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;transition:all 0.3s;color:#1a0a0a;text-transform:uppercase;}
+.btn-spin{background:linear-gradient(135deg,#ffd700,#f0a500);}
+.btn-spin:hover{transform:scale(1.05);}
+.btn-reset{background:linear-gradient(135deg,#ff4444,#cc0000);color:white;}
+.btn-reset:hover{transform:scale(1.05);}
+.score{color:#ffd700;font-size:1.5em;text-align:center;margin-bottom:10px;}
+.game-area{position:relative;height:250px;margin-top:20px;background:rgba(0,0,0,0.2);border-radius:10px;overflow:hidden;}
+.ground{position:absolute;bottom:20px;left:0;right:0;height:4px;background:#666;}
+.dino{font-size:3.5em;position:absolute;bottom:30px;left:60px;transition:bottom 0.1s;z-index:2;}
+.dino.jumping{animation:jump 0.4s ease;}
+@keyframes jump{0%{bottom:30px;}50%{bottom:180px;}100%{bottom:30px;}}
+.obstacle{font-size:2.8em;position:absolute;bottom:30px;right:60px;z-index:1;}
+.obstacle.moving{animation:moveObstacle 2s linear infinite;}
+@keyframes moveObstacle{0%{right:60px;}100%{right:calc(100%+80px);}}
+.message-box{padding:15px;border-radius:8px;margin-top:15px;text-align:center;font-weight:bold;}
+.message-box.info{background:rgba(68,170,255,0.2);color:#66bbff;border:1px solid #44aaff44;}
+.message-box.win{background:rgba(255,215,0,0.2);color:#ffd700;border:1px solid #ffd70044;}
+.message-box.lose{background:rgba(255,0,0,0.2);color:#ff6666;border:1px solid #ff000044;}
+</style>
+</head>
+<body>
+<div class="container">
+<a href="index.html" class="back-btn">← Назад</a>
+<h1>🦕 ДИНОЗАВРИК</h1>
+<div class="game-wrapper">
+<div class="controls-top">
+<button class="btn btn-spin" onclick="startGame()">▶️ СТАРТ</button>
+<button class="btn btn-reset" onclick="resetGame()">🔄 Сброс</button>
+</div>
+<div class="score">🏆 Счет: <span id="score">0</span></div>
+<div class="game-area" id="gameArea">
+<div class="ground"></div>
+<div class="dino" id="dino">🦕</div>
+<div class="obstacle" id="obstacle"></div>
+</div>
+<div id="msg" class="message-box info">Нажмите "СТАРТ" чтобы начать</div>
+</div>
+</div>
+<script>
+let running=false,score=0,intervalId=null,checkId=null;
+
+function startGame(){
+if(running)return;
+running=true;
+score=0;
+document.getElementById('score').textContent=score;
+document.getElementById('msg').textContent='🦕 Игра началась! Нажмите пробел для прыжка';
+document.getElementById('msg').className='message-box info';
+const obs=document.getElementById('obstacle');
+obs.textContent='🌵';
+obs.className='obstacle moving';
+document.addEventListener('keydown',jump);
+document.addEventListener('click',jump);
+intervalId=setInterval(function(){
+score++;
+document.getElementById('score').textContent=score;
+},100);
+checkId=setInterval(function(){
+const dino=document.getElementById('dino');
+const obs=document.getElementById('obstacle');
+if(!dino || !obs)return;
+const dr=dino.getBoundingClientRect();
+const or=obs.getBoundingClientRect();
+if(dr.right>or.left+20 && dr.left<or.right-20 && dr.bottom>or.top+20){
+gameOver();
+}
+},50);
+}
+
+function jump(e){
+if(e.type==='keydown' && e.code!=='Space')return;
+e.preventDefault();
+const dino=document.getElementById('dino');
+if(!dino || dino.classList.contains('jumping'))return;
+dino.classList.add('jumping');
+setTimeout(function(){
+if(dino)dino.classList.remove('jumping');
+},400);
+}
+
+function gameOver(){
+running=false;
+document.removeEventListener('keydown',jump);
+document.removeEventListener('click',jump);
+if(intervalId)clearInterval(intervalId);
+if(checkId)clearInterval(checkId);
+document.getElementById('msg').textContent='💀 Игра окончена! Счет: '+score;
+document.getElementById('msg').className='message-box lose';
+document.getElementById('obstacle').className='obstacle';
+document.getElementById('obstacle').textContent='';
+}
+
+function resetGame(){
+running=false;
+document.removeEventListener('keydown',jump);
+document.removeEventListener('click',jump);
+if(intervalId)clearInterval(intervalId);
+if(checkId)clearInterval(checkId);
+document.getElementById('score').textContent=0;
+document.getElementById('obstacle').className='obstacle';
+document.getElementById('obstacle').textContent='';
+const dino=document.getElementById('dino');
+if(dino)dino.classList.remove('jumping');
+document.getElementById('msg').textContent='🔄 Игра сброшена';
+document.getElementById('msg').className='message-box info';
+}
+</script>
+</body>
+</html>

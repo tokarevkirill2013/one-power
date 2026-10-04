@@ -1,0 +1,35 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎲 Рандомайзер</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:Arial;background:linear-gradient(135deg,#0a0a1a,#1a0a2a);min-height:100vh;padding:20px;}
+.container{max-width:600px;margin:0 auto;}
+h1{color:#ffd700;text-align:center;margin-bottom:20px;}
+.back-btn{display:inline-block;padding:10px 20px;background:#ffd700;color:#1a0a0a;text-decoration:none;border-radius:8px;font-weight:bold;margin-bottom:20px;}
+.back-btn:hover{transform:scale(1.05);}
+.number{font-size:6em;color:#ffd700;text-align:center;padding:30px;background:rgba(0,0,0,0.3);border-radius:15px;margin:20px 0;border:2px solid #ffd70044;}
+.controls{display:flex;gap:15px;justify-content:center;flex-wrap:wrap;margin:15px 0;}
+.controls input{padding:10px;border-radius:8px;border:2px solid #ffd70044;background:rgba(0,0,0,0.3);color:#ffd700;width:100px;}
+.btn{padding:12px 25px;border:none;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;transition:all 0.3s;color:#1a0a0a;text-transform:uppercase;}
+.btn-spin{background:linear-gradient(135deg,#ffd700,#f0a500);}
+.btn-spin:hover{transform:scale(1.05);}
+.message-box{padding:15px;border-radius:8px;margin:10px 0;text-align:center;font-weight:bold;}
+.message-box.info{background:rgba(68,170,255,0.2);color:#66bbff;border:1px solid #44aaff44;}
+</style>
+</head>
+<body>
+<div class="container"><a href="index.html" class="back-btn">← Назад</a><h1>🎲 РАНДОМАЙЗЕР</h1>
+<div class="number" id="number">?</div>
+<div class="controls"><input type="number" id="min" value="1"><span style="color:#aa8866;">до</span><input type="number" id="max" value="100"><button class="btn btn-spin" onclick="generate()">🎲 Сгенерировать</button></div>
+<div id="msg" class="message-box info">Нажмите "Сгенерировать"</div>
+<script>
+function generate(){const mn=parseInt(document.getElementById('min').value)||1;const mx=parseInt(document.getElementById('max').value)||100;if(mn>=mx){document.getElementById('msg').textContent='❌ Минимум должен быть меньше максимума!';document.getElementById('msg').className='message-box info';return;}const r=Math.floor(Math.random()*(mx-mn+1))+mn;document.getElementById('number').textContent=r;document.getElementById('msg').textContent='🎲 Случайное число от '+mn+' до '+mx+': '+r;document.getElementById('msg').className='message-box info';}
+</script>
+</div>
+</body>
+</html>

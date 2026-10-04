@@ -1,0 +1,1239 @@
+
+<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎰 КАЗИНО </title>
+<style>
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+body {
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+background: linear-gradient(135deg, #1a0a0a 0%, #2d0a0a 100%);
+min-height: 100vh;
+padding: 20px;
+}
+.container {
+max-width: 1200px;
+margin: 0 auto;
+}
+h1 {
+color: #ffd700;
+text-align: center;
+margin-bottom: 30px;
+font-size: 3em;
+text-shadow: 0 0 20px rgba(255,215,0,0.3);
+letter-spacing: 3px;
+}
+.nav {
+display: flex;
+gap: 10px;
+flex-wrap: wrap;
+justify-content: center;
+margin-bottom: 20px;
+}
+.nav-btn {
+padding: 12px 25px;
+border: 2px solid #ffd70044;
+border-radius: 10px;
+background: rgba(30,10,10,0.8);
+color: #ffd700;
+cursor: pointer;
+font-size: 16px;
+font-weight: bold;
+transition: all 0.3s;
+}
+.nav-btn:hover {
+background: #ffd700;
+color: #1a0a0a;
+transform: scale(1.05);
+}
+.nav-btn.active {
+background: #ffd700;
+color: #1a0a0a;
+}
+.card {
+background: rgba(30,10,10,0.9);
+border-radius: 15px;
+padding: 25px;
+margin-bottom: 20px;
+box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+border: 1px solid #ffd70033;
+display: none;
+}
+.card.active {
+display: block;
+}
+.card h2 {
+color: #ffd700;
+margin-bottom: 15px;
+border-bottom: 2px solid #ffd70033;
+padding-bottom: 10px;
+text-align: center;
+}
+.balance {
+font-size: 2.5em;
+color: #ffd700;
+text-align: center;
+padding: 15px;
+background: rgba(0,0,0,0.3);
+border-radius: 10px;
+margin-bottom: 15px;
+font-weight: bold;
+}
+.slots {
+display: flex;
+justify-content: center;
+gap: 15px;
+font-size: 5em;
+padding: 30px;
+background: rgba(0,0,0,0.5);
+border-radius: 15px;
+margin: 20px 0;
+border: 2px solid #ffd70044;
+min-height: 150px;
+align-items: center;
+}
+.slot {
+display: inline-block;
+min-width: 100px;
+text-align: center;
+transition: all 0.3s;
+}
+.spinning {
+animation: spin 0.1s ease-in-out infinite;
+}
+.winner {
+animation: win 0.5s ease-in-out;
+}
+@keyframes spin {
+0% { transform: scale(1) rotate(0deg); }
+50% { transform: scale(1.3) rotate(10deg); }
+100% { transform: scale(1) rotate(0deg); }
+}
+@keyframes win {
+0% { transform: scale(1); text-shadow: 0 0 20px gold; }
+50% { transform: scale(1.5); text-shadow: 0 0 50px gold, 0 0 100px gold; }
+100% { transform: scale(1); text-shadow: none; }
+}
+.bet-controls {
+display: flex;
+gap: 10px;
+flex-wrap: wrap;
+justify-content: center;
+margin: 15px 0;
+}
+.bet-controls input {
+padding: 12px 20px;
+border-radius: 8px;
+border: 2px solid #ffd70044;
+background: rgba(0,0,0,0.3);
+color: #ffd700;
+font-size: 16px;
+width: 150px;
+}
+.bet-controls input:focus {
+outline: none;
+border-color: #ffd700;
+}
+.btn {
+padding: 14px 30px;
+border: none;
+border-radius: 8px;
+font-size: 18px;
+font-weight: 600;
+cursor: pointer;
+transition: all 0.3s;
+color: #1a0a0a;
+text-transform: uppercase;
+letter-spacing: 1px;
+}
+.btn-spin {
+background: linear-gradient(135deg, #ffd700, #f0a500);
+}
+.btn-spin:hover {
+transform: scale(1.05);
+box-shadow: 0 0 30px rgba(255,215,0,0.3);
+}
+.btn-spin:disabled {
+opacity: 0.5;
+cursor: not-allowed;
+}
+.btn-reset {
+background: linear-gradient(135deg, #ff4444, #cc0000);
+color: white;
+}
+.btn-reset:hover {
+transform: scale(1.05);
+}
+.btn-half {
+background: linear-gradient(135deg, #44aaff, #0066cc);
+color: white;
+}
+.btn-half:hover {
+transform: scale(1.05);
+}
+.btn-double {
+background: linear-gradient(135deg, #44ff88, #00cc66);
+color: #1a0a0a;
+}
+.btn-double:hover {
+transform: scale(1.05);
+}
+.btn-game {
+background: linear-gradient(135deg, #aa66ff, #7733cc);
+color: white;
+}
+.btn-game:hover {
+transform: scale(1.05);
+}
+.btn-buy {
+background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+color: white;
+}
+.btn-buy:hover {
+transform: scale(1.05);
+}
+.message-box {
+padding: 15px;
+border-radius: 8px;
+margin: 10px 0;
+text-align: center;
+font-weight: bold;
+min-height: 50px;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.message-box.win {
+background: rgba(255,215,0,0.2);
+color: #ffd700;
+border: 1px solid #ffd70044;
+animation: glow 0.5s ease-in-out;
+}
+.message-box.lose {
+background: rgba(255,0,0,0.2);
+color: #ff6666;
+border: 1px solid #ff000044;
+}
+.message-box.info {
+background: rgba(68,170,255,0.2);
+color: #66bbff;
+border: 1px solid #44aaff44;
+}
+@keyframes glow {
+0% { transform: scale(1); }
+50% { transform: scale(1.02); box-shadow: 0 0 50px rgba(255,215,0,0.2); }
+100% { transform: scale(1); }
+}
+.stats {
+display: grid;
+grid-template-columns: repeat(4, 1fr);
+gap: 10px;
+margin: 10px 0;
+}
+.stat-box {
+background: rgba(0,0,0,0.3);
+padding: 10px;
+border-radius: 8px;
+text-align: center;
+border: 1px solid #ffd70022;
+}
+.stat-box .number {
+font-size: 20px;
+font-weight: bold;
+color: #ffd700;
+}
+.stat-box .label {
+color: #aa8866;
+font-size: 12px;
+margin-top: 3px;
+}
+.history-list {
+max-height: 150px;
+overflow-y: auto;
+}
+.history-list::-webkit-scrollbar {
+width: 6px;
+}
+.history-list::-webkit-scrollbar-thumb {
+background: #ffd70044;
+border-radius: 3px;
+}
+.history-item {
+padding: 5px 10px;
+margin: 3px 0;
+background: rgba(255,215,0,0.05);
+border-radius: 4px;
+font-size: 14px;
+color: #ccbbaa;
+display: flex;
+justify-content: space-between;
+}
+.history-item.win {
+border-left: 3px solid #ffd700;
+}
+.history-item.lose {
+border-left: 3px solid #ff4444;
+}
+.history-item .amount {
+font-weight: bold;
+}
+.history-item .amount.win {
+color: #ffd700;
+}
+.history-item .amount.lose {
+color: #ff4444;
+}
+.game-grid {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 15px;
+margin: 15px 0;
+}
+.game-card {
+background: rgba(0,0,0,0.3);
+padding: 20px;
+border-radius: 10px;
+text-align: center;
+border: 1px solid #ffd70033;
+cursor: pointer;
+transition: all 0.3s;
+}
+.game-card:hover {
+transform: scale(1.05);
+border-color: #ffd700;
+background: rgba(255,215,0,0.1);
+}
+.game-card .icon {
+font-size: 3em;
+}
+.game-card .name {
+color: #ffd700;
+font-weight: bold;
+margin-top: 10px;
+}
+.game-card .desc {
+color: #aa8866;
+font-size: 12px;
+}
+.shop-grid {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 15px;
+margin: 15px 0;
+}
+.shop-item {
+background: rgba(0,0,0,0.3);
+padding: 20px;
+border-radius: 10px;
+text-align: center;
+border: 1px solid #ffd70033;
+}
+.shop-item .icon {
+font-size: 3em;
+}
+.shop-item .name {
+color: #ffd700;
+font-weight: bold;
+margin-top: 10px;
+}
+.shop-item .price {
+color: #66bbff;
+margin: 10px 0;
+}
+.shop-item .owned {
+color: #44ff88;
+}
+.tictac-grid {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 5px;
+max-width: 300px;
+margin: 20px auto;
+}
+.tictac-cell {
+aspect-ratio: 1;
+font-size: 3em;
+background: rgba(0,0,0,0.3);
+border: 2px solid #ffd70044;
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+transition: all 0.3s;
+border-radius: 5px;
+}
+.tictac-cell:hover {
+background: rgba(255,215,0,0.1);
+}
+.tictac-cell.x {
+color: #44aaff;
+}
+.tictac-cell.o {
+color: #ff6b6b;
+}
+.achievement {
+background: rgba(0,0,0,0.3);
+padding: 10px 15px;
+margin: 5px 0;
+border-radius: 5px;
+border-left: 3px solid #ffd700;
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+.achievement.unlocked {
+border-left-color: #44ff88;
+opacity: 1;
+}
+.achievement.locked {
+border-left-color: #666;
+opacity: 0.5;
+}
+.achievement .name {
+color: #ffd700;
+}
+.achievement .desc {
+color: #aa8866;
+font-size: 12px;
+}
+.wheel-container {
+display: flex;
+flex-direction: column;
+align-items: center;
+}
+.wheel {
+position: relative;
+width: 300px;
+height: 300px;
+border-radius: 50%;
+background: conic-gradient(
+#ff6b6b 0deg 30deg,
+#ffd93d 30deg 60deg,
+#6bcb77 60deg 90deg,
+#4d96ff 90deg 120deg,
+#ff6b6b 120deg 150deg,
+#ffd93d 150deg 180deg,
+#6bcb77 180deg 210deg,
+#4d96ff 210deg 240deg,
+#ff6b6b 240deg 270deg,
+#ffd93d 270deg 300deg,
+#6bcb77 300deg 330deg,
+#4d96ff 330deg 360deg
+);
+border: 3px solid #ffd700;
+margin: 20px auto;
+cursor: pointer;
+transition: transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+}
+.wheel::after {
+content: '▼';
+position: absolute;
+top: -20px;
+left: 50%;
+transform: translateX(-50%);
+font-size: 30px;
+color: #ffd700;
+}
+.wheel-segment {
+position: absolute;
+width: 50%;
+height: 50%;
+top: 0;
+left: 50%;
+transform-origin: 0% 100%;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 20px;
+font-weight: bold;
+color: white;
+text-shadow: 0 0 5px rgba(0,0,0,0.5);
+}
+.pointer {
+position: absolute;
+top: -10px;
+left: 50%;
+transform: translateX(-50%);
+font-size: 30px;
+color: #ffd700;
+z-index: 10;
+}
+.clicker-area {
+text-align: center;
+padding: 30px;
+}
+.clicker-button {
+font-size: 5em;
+padding: 20px 40px;
+background: linear-gradient(135deg, #ffd700, #f0a500);
+border: none;
+border-radius: 20px;
+cursor: pointer;
+transition: all 0.1s;
+}
+.clicker-button:hover {
+transform: scale(1.1);
+}
+.clicker-button:active {
+transform: scale(0.9);
+}
+.clicker-stats {
+display: flex;
+gap: 20px;
+justify-content: center;
+margin: 20px 0;
+}
+@media (max-width: 768px) {
+.game-grid, .shop-grid {
+grid-template-columns: repeat(2, 1fr);
+}
+.stats {
+grid-template-columns: repeat(2, 1fr);
+}
+.slots {
+font-size: 3em;
+padding: 15px;
+gap: 5px;
+}
+.slot {
+min-width: 60px;
+}
+.balance {
+font-size: 1.8em;
+}
+.wheel {
+width: 200px;
+height: 200px;
+}
+}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>🎰 КАЗИНО </h1>
+
+<div class="balance">💰 Баланс: <span id="balance">1000</span></div>
+
+<div class="nav">
+<button class="nav-btn active" onclick="switchTab('slots')">🎰 Слоты</button>
+<button class="nav-btn" onclick="switchTab('games')">🎮 Игры</button>
+<button class="nav-btn" onclick="switchTab('shop')">🛒 Магазин</button>
+<button class="nav-btn" onclick="switchTab('achievements')">🏆 Достижения</button>
+<button class="nav-btn" onclick="switchTab('stats')">📊 Статистика</button>
+</div>
+
+<!-- Вкладка Слоты -->
+<div class="card active" id="tab-slots">
+<div class="slots" id="slots">
+<div class="slot" id="slot1">🍒</div>
+<div class="slot" id="slot2">🍒</div>
+<div class="slot" id="slot3">🍒</div>
+</div>
+<div class="message-box info" id="message">Нажми "КРУТИТЬ" чтобы начать</div>
+<div class="bet-controls">
+<input type="number" id="betAmount" value="100" min="10" step="10" max="10000">
+<button class="btn btn-half" onclick="halfBet()">½</button>
+<button class="btn btn-double" onclick="doubleBet()">×2</button>
+<button class="btn btn-spin" id="spinBtn" onclick="spin()">🎰 КРУТИТЬ</button>
+<button class="btn btn-reset" onclick="resetGame()">🔄 Сброс</button>
+</div>
+</div>
+
+<!-- Вкладка Игры -->
+<div class="card" id="tab-games">
+<h2>🎮 ИГРЫ</h2>
+<div class="game-grid">
+<div class="game-card" onclick="openGame('tictac')">
+<div class="icon">❌⭕</div>
+<div class="name">Крестики-нолики</div>
+<div class="desc">Ставка 100₽</div>
+</div>
+<div class="game-card" onclick="openGame('wheel')">
+<div class="icon">🎡</div>
+<div class="name">Колесо фортуны</div>
+<div class="desc">Ставка 50₽</div>
+</div>
+<div class="game-card" onclick="openGame('clicker')">
+<div class="icon">🖱️</div>
+<div class="name">Кликер</div>
+<div class="desc">Зарабатывай кликами</div>
+</div>
+</div>
+<div id="gameArea"></div>
+</div>
+
+<!-- Вкладка Магазин -->
+<div class="card" id="tab-shop">
+<h2>🛒 МАГАЗИН</h2>
+<div class="shop-grid" id="shopGrid"></div>
+</div>
+
+<!-- Вкладка Достижения -->
+<div class="card" id="tab-achievements">
+<h2>🏆 ДОСТИЖЕНИЯ</h2>
+<div id="achievementsList"></div>
+</div>
+
+<!-- Вкладка Статистика -->
+<div class="card" id="tab-stats">
+<h2>📊 СТАТИСТИКА</h2>
+<div class="stats">
+<div class="stat-box">
+<div class="number" id="totalSpins">0</div>
+<div class="label">Спинов</div>
+</div>
+<div class="stat-box">
+<div class="number" id="totalWins">0</div>
+<div class="label">Побед</div>
+</div>
+<div class="stat-box">
+<div class="number" id="totalWinAmount">0</div>
+<div class="label">Выиграно</div>
+</div>
+<div class="stat-box">
+<div class="number" id="maxWin">0</div>
+<div class="label">Макс. выигрыш</div>
+</div>
+<div class="stat-box">
+<div class="number" id="jackpotCount">0</div>
+<div class="label">Джекпотов</div>
+</div>
+<div class="stat-box">
+<div class="number" id="totalGames">0</div>
+<div class="label">Игр сыграно</div>
+</div>
+</div>
+<div class="history-list" id="historyList">
+<div style="color: #665544; text-align: center; padding: 10px;">История пуста</div>
+</div>
+</div>
+</div>
+
+<script>
+// ==================== ДАННЫЕ ====================
+const SYMBOLS = ['🍒', '🍋', '🍊', '🍇', '💎', '⭐', '🎰', '🎯', '🏆', '🎲', '🔔', '💜'];
+const SYMBOL_NAMES = ['Вишня', 'Лимон', 'Апельсин', 'Виноград', 'Алмаз', 'Звезда', 'Слот', 'Мишень', 'Трофей', 'Кости', 'Колокол', 'Сердце'];
+const PAYOUTS = {
+    0: 2, 1: 2, 2: 2, 3: 2, 4: 10, 5: 5, 6: 15, 7: 3, 8: 8, 9: 3, 10: 4, 11: 6
+};
+
+const SHOP_ITEMS = [
+    {id: 'x2', name: 'x2 Множитель', icon: '⚡', price: 500, desc: 'Удваивает все выигрыши'},
+    {id: 'x3', name: 'x3 Множитель', icon: '🔥', price: 1000, desc: 'Утраивает все выигрыши'},
+    {id: 'free_spin', name: 'Бесплатный спин', icon: '🎯', price: 200, desc: 'Один бесплатный спин'},
+    {id: 'jackpot_boost', name: 'Бустер джекпота', icon: '💎', price: 1500, desc: 'Увеличивает шанс джекпота'},
+    {id: 'rainbow', name: 'Радужный слот', icon: '🌈', price: 3000, desc: 'Особый символ с множителем x5'}
+];
+
+const ACHIEVEMENTS = [
+    {id: 'first_win', name: 'Первая победа', desc: 'Выиграйте свой первый спин', icon: '🎯'},
+    {id: 'jackpot', name: 'Джекпот!', desc: 'Выиграйте джекпот 🎰🎰🎰', icon: '💎'},
+    {id: 'millionaire', name: 'Миллионер', desc: 'Накопите 1,000,000 монет', icon: '💰'},
+    {id: '100_spins', name: 'Заядлый игрок', desc: 'Сделайте 100 спинов', icon: '🎰'},
+    {id: '10_wins', name: 'Победитель', desc: 'Выиграйте 10 раз', icon: '🏆'},
+    {id: 'shopaholic', name: 'Шопоголик', desc: 'Купите 5 предметов в магазине', icon: '🛒'},
+    {id: 'game_master', name: 'Мастер игр', desc: 'Сыграйте во все игры', icon: '🎮'},
+    {id: 'clicker_master', name: 'Клик-мастер', desc: 'Сделайте 1000 кликов', icon: '🖱️'},
+    {id: 'wheel_winner', name: 'Колесо удачи', desc: 'Выиграйте на колесе фортуны', icon: '🎡'}
+];
+
+// ==================== СОСТОЯНИЕ ====================
+let gameState = {
+    balance: 1000,
+    totalSpins: 0,
+    totalWins: 0,
+    totalWinAmount: 0,
+    maxWin: 0,
+    jackpotCount: 0,
+    totalGames: 0,
+    history: [],
+    inventory: {},
+    achievements: {},
+    clickerCount: 0,
+    stats: { gamesPlayed: {} }
+};
+
+// ==================== ЗАГРУЗКА/СОХРАНЕНИЕ ====================
+function saveGame() {
+    try {
+        localStorage.setItem('casino_mega', JSON.stringify(gameState));
+    } catch(e) {}
+}
+
+function loadGame() {
+    try {
+        const data = localStorage.getItem('casino_mega');
+        if (data) {
+            const saved = JSON.parse(data);
+            Object.assign(gameState, saved);
+            return true;
+        }
+    } catch(e) {}
+    return false;
+}
+
+// ==================== ОСНОВНЫЕ ФУНКЦИИ ====================
+let balance = 1000;
+let totalSpins = 0, totalWins = 0, totalWinAmount = 0, maxWin = 0, jackpotCount = 0;
+let gameHistory = [];
+let isSpinning = false;
+let inventory = {};
+let achievements = {};
+let clickerCount = 0;
+
+const balanceEl = document.getElementById('balance');
+const slots = [document.getElementById('slot1'), document.getElementById('slot2'), document.getElementById('slot3')];
+const messageEl = document.getElementById('message');
+const spinBtn = document.getElementById('spinBtn');
+const betInput = document.getElementById('betAmount');
+
+function updateBalance() {
+    balanceEl.textContent = Math.round(balance);
+    saveGame();
+}
+
+function updateStats() {
+    document.getElementById('totalSpins').textContent = totalSpins;
+    document.getElementById('totalWins').textContent = totalWins;
+    document.getElementById('totalWinAmount').textContent = Math.round(totalWinAmount);
+    document.getElementById('maxWin').textContent = Math.round(maxWin);
+    document.getElementById('jackpotCount').textContent = jackpotCount;
+    document.getElementById('totalGames').textContent = Object.values(gameState.stats.gamesPlayed || {}).reduce((a,b) => a+b, 0);
+}
+
+function addHistory(result, bet, win, symbol) {
+    gameHistory.unshift({ result, bet, win, symbol });
+    if (gameHistory.length > 50) gameHistory.pop();
+    renderHistory();
+    saveGame();
+}
+
+function renderHistory() {
+    const list = document.getElementById('historyList');
+    if (gameHistory.length === 0) {
+        list.innerHTML = '<div style="color: #665544; text-align: center; padding: 10px;">История пуста</div>';
+        return;
+    }
+    list.innerHTML = gameHistory.map(h => `
+        <div class="history-item ${h.result}">
+            <span>${h.symbol} ${h.result === 'win' ? '🎉' : '😢'}</span>
+            <span class="amount ${h.result}">${h.result === 'win' ? '+' : '-'}${Math.round(Math.abs(h.win))}</span>
+        </div>
+    `).join('');
+}
+
+function setMessage(text, type = 'info') {
+    messageEl.textContent = text;
+    messageEl.className = 'message-box ' + type;
+}
+
+function halfBet() {
+    const current = parseInt(betInput.value) || 100;
+    betInput.value = Math.max(10, Math.floor(current / 2 / 10) * 10);
+}
+
+function doubleBet() {
+    const current = parseInt(betInput.value) || 100;
+    betInput.value = Math.min(10000, current * 2);
+}
+
+function getRandomSymbol() {
+    return Math.floor(Math.random() * SYMBOLS.length);
+}
+
+// ==================== СЛОТЫ ====================
+function spin() {
+    if (isSpinning) return;
+
+    const bet = parseInt(betInput.value);
+    if (isNaN(bet) || bet <= 0) {
+        setMessage('❌ Введите корректную ставку!', 'lose');
+        return;
+    }
+    if (bet > balance) {
+        setMessage('❌ Недостаточно средств!', 'lose');
+        return;
+    }
+
+    balance -= bet;
+    updateBalance();
+    isSpinning = true;
+    spinBtn.disabled = true;
+    setMessage('🎰 Крутим...', 'info');
+
+    let spinCount = 0;
+    const maxSpins = 10 + Math.floor(Math.random() * 10);
+    let interval = setInterval(() => {
+        slots.forEach((slot) => {
+            slot.textContent = SYMBOLS[getRandomSymbol()];
+            slot.className = 'slot spinning';
+        });
+        spinCount++;
+        if (spinCount >= maxSpins) {
+            clearInterval(interval);
+            finishSpin(bet);
+        }
+    }, 100);
+}
+
+function finishSpin(bet) {
+    const results = [getRandomSymbol(), getRandomSymbol(), getRandomSymbol()];
+    slots.forEach((slot, i) => {
+        slot.textContent = SYMBOLS[results[i]];
+        slot.className = 'slot';
+    });
+
+    const isWin = results[0] === results[1] && results[1] === results[2];
+    let winAmount = 0;
+    let resultText = '';
+    let resultType = 'lose';
+
+    // Проверка на мультипликаторы
+    let multiplier = 1;
+    if (inventory.x2) multiplier = 2;
+    if (inventory.x3) multiplier = 3;
+
+    // Повышенный шанс джекпота
+    const jackpotChance = inventory.jackpot_boost ? 0.08 : 0.04;
+
+    if (isWin) {
+        if (results[0] === 6 && Math.random() < jackpotChance) {
+            winAmount = bet * 100 * multiplier;
+            resultText = `🎰 ДЖЕКПОТ! x${100*multiplier} = ${winAmount} ₽`;
+            jackpotCount++;
+            checkAchievement('jackpot');
+        } else {
+            const baseMultiplier = PAYOUTS[results[0]] || 2;
+            winAmount = bet * baseMultiplier * multiplier;
+            resultText = `🎉 ВЫИГРЫШ! ${SYMBOL_NAMES[results[0]]} x${baseMultiplier*multiplier} = ${winAmount} ₽`;
+        }
+
+        balance += winAmount;
+        updateBalance();
+        slots.forEach(s => s.className = 'slot winner');
+        resultType = 'win';
+        totalWins++;
+        totalWinAmount += winAmount;
+        if (winAmount > maxWin) maxWin = winAmount;
+        setMessage(resultText, 'win');
+        checkAchievement('first_win');
+        if (totalWins >= 10) checkAchievement('10_wins');
+    } else {
+        if (results[0] === results[1] || results[1] === results[2] || results[0] === results[2]) {
+            resultText = `😅 Почти! ${SYMBOLS[results[0]]} ${SYMBOLS[results[1]]} ${SYMBOLS[results[2]]}`;
+            setMessage(resultText, 'info');
+        } else {
+            resultText = `😢 Проигрыш! ${SYMBOLS[results[0]]} ${SYMBOLS[results[1]]} ${SYMBOLS[results[2]]}`;
+            setMessage(resultText, 'lose');
+        }
+        resultType = 'lose';
+        winAmount = -bet;
+    }
+
+    totalSpins++;
+    updateStats();
+    if (totalSpins >= 100) checkAchievement('100_spins');
+    if (balance >= 1000000) checkAchievement('millionaire');
+
+    const symbolDisplay = `${SYMBOLS[results[0]]}${SYMBOLS[results[1]]}${SYMBOLS[results[2]]}`;
+    addHistory(resultType, bet, winAmount, symbolDisplay);
+
+    if (balance <= 0) {
+        setMessage('💀 Вы обанкротились! Нажмите "Сброс" для рестарта', 'lose');
+        balance = 0;
+        updateBalance();
+    }
+
+    isSpinning = false;
+    spinBtn.disabled = false;
+    saveGame();
+}
+
+function resetGame() {
+    if (isSpinning) return;
+    if (!confirm('Сбросить игру? Все данные будут удалены.')) return;
+
+    balance = 1000;
+    totalSpins = 0;
+    totalWins = 0;
+    totalWinAmount = 0;
+    maxWin = 0;
+    jackpotCount = 0;
+    gameHistory = [];
+    inventory = {};
+    achievements = {};
+    clickerCount = 0;
+    renderHistory();
+    updateBalance();
+    updateStats();
+    setMessage('🔄 Игра сброшена. Удачи!', 'info');
+    slots.forEach(s => {
+        s.textContent = '🍒';
+        s.className = 'slot';
+    });
+    betInput.value = '100';
+    renderShop();
+    renderAchievements();
+    saveGame();
+}
+
+// ==================== ДОСТИЖЕНИЯ ====================
+function checkAchievement(id) {
+    if (achievements[id]) return;
+    achievements[id] = true;
+    renderAchievements();
+    saveGame();
+    setMessage(`🏆 Достижение разблокировано! ${ACHIEVEMENTS.find(a => a.id === id).name}`, 'win');
+}
+
+function renderAchievements() {
+    const list = document.getElementById('achievementsList');
+    list.innerHTML = ACHIEVEMENTS.map(a => `
+        <div class="achievement ${achievements[a.id] ? 'unlocked' : 'locked'}">
+            <div>
+                <span class="name">${a.icon} ${a.name}</span>
+                <span class="desc">${a.desc}</span>
+            </div>
+            <span>${achievements[a.id] ? '✅' : '🔒'}</span>
+        </div>
+    `).join('');
+}
+
+// ==================== МАГАЗИН ====================
+function renderShop() {
+    const grid = document.getElementById('shopGrid');
+    grid.innerHTML = SHOP_ITEMS.map(item => `
+        <div class="shop-item">
+            <div class="icon">${item.icon}</div>
+            <div class="name">${item.name}</div>
+            <div class="desc">${item.desc}</div>
+            <div class="price">💰 ${item.price}₽</div>
+            ${inventory[item.id] ? '<div class="owned">✅ Куплено</div>' : 
+            `<button class="btn btn-buy" onclick="buyItem('${item.id}')">Купить</button>`}
+        </div>
+    `).join('');
+}
+
+function buyItem(id) {
+    const item = SHOP_ITEMS.find(i => i.id === id);
+    if (!item) return;
+    if (inventory[id]) {
+        setMessage('❌ У вас уже есть этот предмет', 'lose');
+        return;
+    }
+    if (balance < item.price) {
+        setMessage('❌ Недостаточно средств!', 'lose');
+        return;
+    }
+    balance -= item.price;
+    inventory[id] = true;
+    updateBalance();
+    renderShop();
+    saveGame();
+    setMessage(`✅ Куплено: ${item.name}`, 'win');
+
+    const purchased = Object.keys(inventory).length;
+    if (purchased >= 5) checkAchievement('shopaholic');
+}
+
+// ==================== ИГРЫ ====================
+function switchTab(tab) {
+    document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(`tab-${tab}`).classList.add('active');
+    document.querySelector(`.nav-btn[onclick="switchTab('${tab}')"]`).classList.add('active');
+
+    if (tab === 'shop') renderShop();
+    if (tab === 'achievements') renderAchievements();
+    if (tab === 'stats') updateStats();
+    if (tab === 'games') {
+        document.getElementById('gameArea').innerHTML = '';
+    }
+}
+
+function openGame(game) {
+    const area = document.getElementById('gameArea');
+    switch(game) {
+        case 'tictac': openTicTac(area); break;
+        case 'wheel': openWheel(area); break;
+        case 'clicker': openClicker(area); break;
+    }
+}
+
+// ==================== КРЕСТИКИ-НОЛИКИ ====================
+let ticTacBoard = [];
+let ticTacTurn = 'X';
+let ticTacGameOver = false;
+
+function openTicTac(area) {
+    ticTacBoard = ['', '', '', '', '', '', '', '', ''];
+    ticTacTurn = 'X';
+    ticTacGameOver = false;
+
+    area.innerHTML = `
+        <div style="text-align: center;">
+            <h3 style="color:#ffd700;">❌ Крестики-нолики ⭕</h3>
+            <p style="color:#aa8866;">Ставка: 100₽ | Ход: <span id="tictacTurn">X</span></p>
+            <div class="tictac-grid" id="tictacGrid"></div>
+            <button class="btn btn-reset" onclick="openTicTac(document.getElementById('gameArea'))">🔄 Новая игра</button>
+        </div>
+    `;
+    renderTicTac();
+}
+
+function renderTicTac() {
+    const grid = document.getElementById('tictacGrid');
+    if (!grid) return;
+    grid.innerHTML = ticTacBoard.map((cell, i) => `
+        <div class="tictac-cell ${cell.toLowerCase()}" onclick="tictacMove(${i})">
+            ${cell}
+        </div>
+    `).join('');
+    document.getElementById('tictacTurn').textContent = ticTacTurn;
+}
+
+function tictacMove(index) {
+    if (ticTacGameOver || ticTacBoard[index] || balance < 100) return;
+
+    ticTacBoard[index] = ticTacTurn;
+    renderTicTac();
+
+    const winner = checkTicTacWinner();
+    if (winner) {
+        ticTacGameOver = true;
+        if (winner === 'X') {
+            balance += 200;
+            updateBalance();
+            setMessage('🎉 Вы выиграли! +200₽', 'win');
+            checkAchievement('game_master');
+        } else {
+            balance -= 100;
+            updateBalance();
+            setMessage('😢 Вы проиграли! -100₽', 'lose');
+        }
+        gameState.stats.gamesPlayed.tictac = (gameState.stats.gamesPlayed.tictac || 0) + 1;
+        saveGame();
+        return;
+    }
+
+    if (!ticTacBoard.includes('')) {
+        ticTacGameOver = true;
+        setMessage('🤝 Ничья!', 'info');
+        gameState.stats.gamesPlayed.tictac = (gameState.stats.gamesPlayed.tictac || 0) + 1;
+        saveGame();
+        return;
+    }
+
+    ticTacTurn = ticTacTurn === 'X' ? 'O' : 'X';
+    renderTicTac();
+
+    // Ход компьютера
+    if (ticTacTurn === 'O' && !ticTacGameOver) {
+        setTimeout(() => {
+            const empty = ticTacBoard.map((c,i) => c === '' ? i : null).filter(i => i !== null);
+            if (empty.length > 0) {
+                const move = empty[Math.floor(Math.random() * empty.length)];
+                ticTacBoard[move] = 'O';
+                renderTicTac();
+                const w = checkTicTacWinner();
+                if (w) {
+                    ticTacGameOver = true;
+                    balance -= 100;
+                    updateBalance();
+                    setMessage('😢 Компьютер выиграл! -100₽', 'lose');
+                    gameState.stats.gamesPlayed.tictac = (gameState.stats.gamesPlayed.tictac || 0) + 1;
+                    saveGame();
+                } else if (!ticTacBoard.includes('')) {
+                    ticTacGameOver = true;
+                    setMessage('🤝 Ничья!', 'info');
+                    gameState.stats.gamesPlayed.tictac = (gameState.stats.gamesPlayed.tictac || 0) + 1;
+                    saveGame();
+                } else {
+                    ticTacTurn = 'X';
+                    renderTicTac();
+                }
+            }
+        }, 300);
+    }
+}
+
+function checkTicTacWinner() {
+    const lines = [
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6]
+    ];
+    for (let line of lines) {
+        const [a,b,c] = line;
+        if (ticTacBoard[a] && ticTacBoard[a] === ticTacBoard[b] && ticTacBoard[a] === ticTacBoard[c]) {
+            return ticTacBoard[a];
+        }
+    }
+    return null;
+}
+
+// ==================== КОЛЕСО ФОРТУНЫ ====================
+let wheelSpinning = false;
+const WHEEL_SEGMENTS = [
+    {label: 'x2', value: 2},
+    {label: 'x5', value: 5},
+    {label: 'x1', value: 1},
+    {label: 'x0', value: 0},
+    {label: 'x3', value: 3},
+    {label: 'x10', value: 10},
+    {label: 'x0', value: 0},
+    {label: 'x7', value: 7}
+];
+
+function openWheel(area) {
+    area.innerHTML = `
+        <div class="wheel-container">
+            <h3 style="color:#ffd700;">🎡 Колесо фортуны</h3>
+            <p style="color:#aa8866;">Ставка: 50₽</p>
+            <div class="wheel" id="wheel" onclick="spinWheel()">
+                <div class="pointer">▼</div>
+            </div>
+            <button class="btn btn-spin" onclick="spinWheel()">🎡 КРУТИТЬ</button>
+            <div id="wheelResult" style="color:#ffd700; margin-top:10px;"></div>
+        </div>
+    `;
+    renderWheel();
+}
+
+function renderWheel() {
+    const wheel = document.getElementById('wheel');
+    if (!wheel) return;
+    const segmentAngle = 360 / WHEEL_SEGMENTS.length;
+    const colors = ['#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff', '#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff'];
+
+    wheel.innerHTML = `<div class="pointer">▼</div>`;
+    WHEEL_SEGMENTS.forEach((seg, i) => {
+        const deg = i * segmentAngle;
+        const color = colors[i % colors.length];
+        const div = document.createElement('div');
+        div.className = 'wheel-segment';
+        div.style.transform = `rotate(${deg}deg)`;
+        div.style.background = color;
+        div.textContent = seg.label;
+        wheel.appendChild(div);
+    });
+}
+
+function spinWheel() {
+    if (wheelSpinning || balance < 50) {
+        if (balance < 50) setMessage('❌ Недостаточно средств!', 'lose');
+        return;
+    }
+
+    balance -= 50;
+    updateBalance();
+    wheelSpinning = true;
+    const wheel = document.getElementById('wheel');
+    const result = document.getElementById('wheelResult');
+    result.textContent = '🎡 Крутим...';
+
+    const randomAngle = 360 * 5 + Math.random() * 360;
+    wheel.style.transform = `rotate(${randomAngle}deg)`;
+
+    setTimeout(() => {
+        const segmentIndex = Math.floor((randomAngle % 360) / (360 / WHEEL_SEGMENTS.length));
+        const win = WHEEL_SEGMENTS[segmentIndex];
+        const winAmount = 50 * win.value;
+
+        if (win.value > 0) {
+            balance += winAmount;
+            updateBalance();
+            result.textContent = `🎉 Выигрыш! x${win.value} = ${winAmount}₽`;
+            setMessage(`🎉 Выигрыш! +${winAmount}₽`, 'win');
+            checkAchievement('wheel_winner');
+            checkAchievement('game_master');
+        } else {
+            result.textContent = `😢 Проигрыш!`;
+            setMessage(`😢 Проигрыш! -50₽`, 'lose');
+        }
+
+        gameState.stats.gamesPlayed.wheel = (gameState.stats.gamesPlayed.wheel || 0) + 1;
+        wheelSpinning = false;
+        saveGame();
+        setTimeout(() => {
+            wheel.style.transform = 'rotate(0deg)';
+        }, 100);
+    }, 3000);
+}
+
+// ==================== КЛИКЕР ====================
+function openClicker(area) {
+    area.innerHTML = `
+        <div class="clicker-area">
+            <h3 style="color:#ffd700;">🖱️ Кликер</h3>
+            <p style="color:#aa8866;">Зарабатывай кликами! 1 клик = 1₽</p>
+            <div class="clicker-stats">
+                <div class="stat-box">
+                    <div class="number" id="clickCount">${clickerCount}</div>
+                    <div class="label">Кликов</div>
+                </div>
+                <div class="stat-box">
+                    <div class="number" id="clickEarnings">${clickerCount}</div>
+                    <div class="label">Заработано</div>
+                </div>
+            </div>
+            <button class="clicker-button" onclick="doClick()">🖱️</button>
+            <button class="btn btn-reset" onclick="resetClicker()">🔄 Сброс</button>
+        </div>
+    `;
+}
+
+function doClick() {
+    clickerCount++;
+    balance++;
+    updateBalance();
+    document.getElementById('clickCount').textContent = clickerCount;
+    document.getElementById('clickEarnings').textContent = clickerCount;
+    if (clickerCount >= 1000) checkAchievement('clicker_master');
+    saveGame();
+}
+
+function resetClicker() {
+    clickerCount = 0;
+    document.getElementById('clickCount').textContent = 0;
+    document.getElementById('clickEarnings').textContent = 0;
+    saveGame();
+}
+
+// ==================== ИНИЦИАЛИЗАЦИЯ ====================
+function init() {
+    loadGame();
+    balance = gameState.balance || 1000;
+    totalSpins = gameState.totalSpins || 0;
+    totalWins = gameState.totalWins || 0;
+    totalWinAmount = gameState.totalWinAmount || 0;
+    maxWin = gameState.maxWin || 0;
+    jackpotCount = gameState.jackpotCount || 0;
+    gameHistory = gameState.history || [];
+    inventory = gameState.inventory || {};
+    achievements = gameState.achievements || {};
+    clickerCount = gameState.clickerCount || 0;
+
+    if (!gameState.stats) gameState.stats = { gamesPlayed: {} };
+
+    updateBalance();
+    updateStats();
+    renderHistory();
+    renderShop();
+    renderAchievements();
+    setMessage('🎰 Добро пожаловать в казино мега!', 'info');
+
+    betInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') spin();
+    });
+}
+
+init();
+</script>
+</body>
+</html>

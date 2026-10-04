@@ -1,0 +1,69 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🦠 Plague Inc</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:Arial;background:linear-gradient(135deg,#0a0a1a,#1a0a2a);min-height:100vh;padding:20px;}
+.container{max-width:900px;margin:0 auto;}
+h1{color:#ffd700;text-align:center;margin-bottom:20px;}
+.back-btn{display:inline-block;padding:10px 20px;background:#ffd700;color:#1a0a0a;text-decoration:none;border-radius:8px;font-weight:bold;margin-bottom:20px;}
+.back-btn:hover{transform:scale(1.05);}
+.status-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
+.status-box{background:rgba(0,0,0,0.3);padding:15px;border-radius:10px;text-align:center;border:1px solid #ffd70022;}
+.status-box .label{color:#aa8866;font-size:12px;}
+.status-box .value{color:#ffd700;font-size:1.5em;font-weight:bold;}
+.world-map{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:20px 0;max-width:600px;margin-left:auto;margin-right:auto;}
+.country{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:1.2em;border-radius:8px;cursor:pointer;transition:all 0.3s;border:2px solid #ffd70022;font-weight:bold;color:white;flex-direction:column;}
+.country:hover{transform:scale(1.05);}
+.country.healthy{background:#2d5a27;border-color:#44ff88;}
+.country.infected{background:#8b0000;border-color:#ff4444;animation:pulse 1s ease-in-out infinite;}
+.country.dead{background:#1a0a0a;border-color:#666;}
+.country.immune{background:#4a4a4a;border-color:#888;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.6;}}
+.controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:20px 0;}
+.controls .btn{padding:12px 25px;border:none;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;transition:all 0.3s;color:#1a0a0a;text-transform:uppercase;}
+.btn-spread{background:linear-gradient(135deg,#ff4444,#cc0000);color:white;}
+.btn-spread:hover{transform:scale(1.05);}
+.btn-reset{background:linear-gradient(135deg,#ffd700,#f0a500);}
+.btn-reset:hover{transform:scale(1.05);}
+.btn-upgrade{background:linear-gradient(135deg,#44ff88,#00cc66);}
+.btn-upgrade:hover{transform:scale(1.05);}
+.evolution{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:15px 0;}
+.evo-item{background:rgba(0,0,0,0.3);padding:15px;border-radius:10px;text-align:center;border:1px solid #ffd70022;}
+.evo-item .name{color:#ffd700;font-weight:bold;}
+.evo-item .desc{color:#aa8866;font-size:12px;margin:5px 0;}
+.evo-item .cost{color:#44ff88;}
+.evo-item.unlocked{border-color:#44ff88;background:rgba(68,255,136,0.1);}
+.message-box{padding:15px;border-radius:8px;margin:10px 0;text-align:center;font-weight:bold;}
+.message-box.win{background:rgba(255,215,0,0.2);color:#ffd700;border:1px solid #ffd70044;}
+.message-box.lose{background:rgba(255,0,0,0.2);color:#ff6666;border:1px solid #ff000044;}
+.message-box.info{background:rgba(68,170,255,0.2);color:#66bbff;border:1px solid #44aaff44;}
+</style>
+</head>
+<body>
+<div class="container"><a href="index.html" class="back-btn">← Назад</a><h1>🦠 PLAGUE INC</h1>
+<div class="status-bar"><div class="status-box"><div class="label">Заражено</div><div class="value" id="infected">0</div></div><div class="status-box"><div class="label">Умерло</div><div class="value" id="dead">0</div></div><div class="status-box"><div class="label">Иммунитет</div><div class="value" id="immune">0</div></div><div class="status-box"><div class="label">Очки</div><div class="value" id="points">0</div></div></div>
+<div class="world-map" id="worldMap"></div>
+<div class="controls"><button class="btn btn-spread" onclick="spread()">🦠 Распространить</button><button class="btn btn-reset" onclick="reset()">🔄 Новая игра</button></div>
+<div class="evolution" id="evolution"></div>
+<div id="msg" class="message-box info">Начинайте заражение!</div>
+<script>
+const COUNTRIES=[{name:'🇺🇸',pop:100},{name:'🇨🇳',pop:140},{name:'🇮🇳',pop:130},{name:'🇷🇺',pop:40},{name:'🇯🇵',pop:30},{name:'🇩🇪',pop:20},{name:'🇬🇧',pop:15},{name:'🇫🇷',pop:18},{name:'🇮🇹',pop:12},{name:'🇧🇷',pop:50},{name:'🇦🇺',pop:8},{name:'🇨🇦',pop:10},{name:'🇰🇷',pop:25},{name:'🇲🇽',pop:35},{name:'🇪🇬',pop:20},{name:'🇿🇦',pop:15},{name:'🇳🇬',pop:45},{name:'🇸🇦',pop:10},{name:'🇦🇷',pop:12},{name:'🇵🇰',pop:60},{name:'🇧🇩',pop:45},{name:'🇻🇳',pop:25},{name:'🇹🇷',pop:18},{name:'🇮🇷',pop:20},{name:'🇹🇭',pop:15},{name:'🇪🇸',pop:14},{name:'🇺🇦',pop:8},{name:'🇵🇱',pop:10},{name:'🇳🇱',pop:6},{name:'🇧🇪',pop:4},{name:'🇵🇹',pop:4},{name:'🇨🇭',pop:3},{name:'🇦🇹',pop:3},{name:'🇸🇪',pop:3},{name:'🇳🇴',pop:2},{name:'🇫🇮',pop:2}];
+const EVOS=[{id:'resistance',name:'💪 Устойчивость',desc:'+20% распространения',cost:10},{id:'lethality',name:'💀 Летальность',desc:'+15% смертности',cost:15},{id:'mutation',name:'🧬 Мутация',desc:'+30% заражения',cost:20},{id:'airborne',name:'✈️ Воздушный',desc:'Быстрее распространяется',cost:25},{id:'waterborne',name:'💧 Водный',desc:'Заражает через воду',cost:25},{id:'cure',name:'💊 Устойчивость',desc:'Меньше шанс на лекарство',cost:30}];
+let state={countries:COUNTRIES.map(c=>({...c,status:'healthy',infected:0,dead:0})),infectedTotal:0,deadTotal:0,immuneTotal:0,points:0,evos:{},gameOver:false,turn:0};
+function reset(){state.countries=COUNTRIES.map(c=>({...c,status:'healthy',infected:0,dead:0}));state.infectedTotal=0;state.deadTotal=0;state.immuneTotal=0;state.points=0;state.evos={};state.gameOver=false;state.turn=0;renderMap();updateStats();renderEvos();document.getElementById('msg').textContent='Новая игра! Начните заражение';document.getElementById('msg').className='message-box info';}
+function renderMap(){const m=document.getElementById('worldMap');m.innerHTML='';state.countries.forEach((c,i)=>{const d=document.createElement('div');d.className='country '+c.status;d.innerHTML=c.name+'<br><small>'+Math.round(c.infected)+'/'+c.pop+'</small>';d.onclick=()=>infect(i);m.appendChild(d);});}
+function updateStats(){document.getElementById('infected').textContent=Math.round(state.infectedTotal);document.getElementById('dead').textContent=Math.round(state.deadTotal);document.getElementById('immune').textContent=Math.round(state.immuneTotal);document.getElementById('points').textContent=state.points;}
+function infect(i){if(state.gameOver)return;const c=state.countries[i];if(c.status==='healthy'||c.status==='infected'){const inf=Math.min(c.pop*0.1,5);c.infected+=inf;c.status='infected';state.infectedTotal+=inf;state.points+=Math.floor(inf*0.5);updateStats();renderMap();checkEnd();}}
+function spread(){if(state.gameOver)return;state.turn++;let spread=0,deaths=0;state.countries.forEach(c=>{if(c.status==='infected'){const eb=state.evos.resistance?1.2:1;const mb=state.evos.mutation?1.3:1;const sr=0.15*eb*mb;const ni=Math.min(c.pop-c.infected,Math.floor(c.pop*sr));c.infected+=ni;spread+=ni;const lb=state.evos.lethality?1.15:1;const dr=0.05*lb;const nd=Math.min(c.infected-c.dead,Math.floor(c.infected*dr));c.dead+=nd;deaths+=nd;if(c.dead>c.pop*0.8)c.status='dead';else if(c.infected>c.pop*0.5)c.status='infected';}});state.infectedTotal+=spread;state.deadTotal+=deaths;state.countries.forEach(c=>{if(c.status==='healthy'&&Math.random()<0.05){c.status='infected';c.infected+=1;state.infectedTotal+=1;}});state.points+=Math.floor(spread*0.2)+Math.floor(deaths*0.3);updateStats();renderMap();const sm=spread>0?'Распространено '+Math.round(spread)+' человек':'Никто не заразился';const dm=deaths>0?'Умерло '+Math.round(deaths)+' человек':'';document.getElementById('msg').textContent='🦠 Ход '+state.turn+': '+sm+' '+dm;document.getElementById('msg').className='message-box info';checkEnd();}
+function checkEnd(){if(state.gameOver)return;const total=state.countries.reduce((s,c)=>s+c.pop,0);if(state.infectedTotal>=total*0.9){state.gameOver=true;document.getElementById('msg').textContent='🏆 ПОБЕДА! Весь мир заражен!';document.getElementById('msg').className='message-box win';return;}if(state.deadTotal>=total*0.5){state.gameOver=true;document.getElementById('msg').textContent='💀 Человечество вымерло!';document.getElementById('msg').className='message-box lose';return;}if(state.turn>50){const immune=state.countries.filter(c=>c.status==='immune').length;if(immune>state.countries.length*0.7){state.gameOver=true;document.getElementById('msg').textContent='💊 Человечество выработало иммунитет!';document.getElementById('msg').className='message-box lose';}}}
+function renderEvos(){const c=document.getElementById('evolution');c.innerHTML='';EVOS.forEach(evo=>{const unlocked=!!state.evos[evo.id];const d=document.createElement('div');d.className='evo-item'+(unlocked?' unlocked':'');d.innerHTML='<div class="name">'+evo.name+'</div><div class="desc">'+evo.desc+'</div><div class="cost">'+(unlocked?'✅ Куплено':'💰 '+evo.cost+' очков')+'</div>';if(!unlocked&&state.points>=evo.cost&&!state.gameOver){const b=document.createElement('button');b.className='btn btn-upgrade';b.textContent='Купить';b.onclick=()=>buy(evo.id);d.appendChild(b);}c.appendChild(d);});}
+function buy(id){if(state.gameOver)return;const evo=EVOS.find(e=>e.id===id);if(!evo||state.evos[id])return;if(state.points<evo.cost)return;state.points-=evo.cost;state.evos[id]=true;renderEvos();updateStats();document.getElementById('msg').textContent='🧬 Эволюция '+evo.name+' куплена!';document.getElementById('msg').className='message-box info';}
+reset();
+</script>
+</body>
+</html>

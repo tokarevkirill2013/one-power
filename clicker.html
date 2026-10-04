@@ -1,0 +1,35 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🖱️ Кликер</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:Arial;background:linear-gradient(135deg,#0a0a1a,#1a0a2a);min-height:100vh;padding:20px;}
+.container{max-width:600px;margin:0 auto;}
+h1{color:#ffd700;text-align:center;margin-bottom:20px;}
+.back-btn{display:inline-block;padding:10px 20px;background:#ffd700;color:#1a0a0a;text-decoration:none;border-radius:8px;font-weight:bold;margin-bottom:20px;}
+.back-btn:hover{transform:scale(1.05);}
+.clicker{text-align:center;padding:30px;}
+.count{font-size:4em;color:#ffd700;margin:20px 0;}
+.btn-click{font-size:5em;padding:20px 40px;background:linear-gradient(135deg,#ffd700,#f0a500);border:none;border-radius:20px;cursor:pointer;transition:all 0.1s;}
+.btn-click:hover{transform:scale(1.1);}
+.btn-click:active{transform:scale(0.9);}
+.btn-reset{background:linear-gradient(135deg,#ff4444,#cc0000);color:white;padding:12px 25px;border:none;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;transition:all 0.3s;text-transform:uppercase;margin-top:20px;}
+.btn-reset:hover{transform:scale(1.05);}
+.message-box{padding:15px;border-radius:8px;margin:10px 0;text-align:center;font-weight:bold;}
+.message-box.info{background:rgba(68,170,255,0.2);color:#66bbff;border:1px solid #44aaff44;}
+</style>
+</head>
+<body>
+<div class="container"><a href="index.html" class="back-btn">← Назад</a><h1>🖱️ КЛИКЕР</h1>
+<div class="clicker"><div class="count" id="count">0</div><button class="btn-click" onclick="doClick()">🖱️</button><br><button class="btn-reset" onclick="resetClicker()">🔄 Сброс</button><div id="msg" class="message-box info">Кликайте чтобы зарабатывать</div></div>
+<script>
+let clicks=0;function doClick(){clicks++;document.getElementById('count').textContent=clicks;document.getElementById('msg').textContent='🖱️ Клик! Всего: '+clicks;document.getElementById('msg').className='message-box info';}
+function resetClicker(){clicks=0;document.getElementById('count').textContent=0;document.getElementById('msg').textContent='🔄 Сброшено';document.getElementById('msg').className='message-box info';}
+</script>
+</div>
+</body>
+</html>

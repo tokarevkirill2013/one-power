@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Калькулятор на FastAPI</title>
+    </head>
+    <body>
+        <h1>Калькулятор</h1>
+        <form method="post" action="/calculate">
+            <label for="num1">Число 1:</label>
+            <input type="number" id="num1" name="num1" required>
+            <br>
+            <label for="num2">Число 2:</label>
+            <input type="number" id="num2" name="num2" required>
+            <br>
+            <label for="operation">Операция:</label>
+            <select id="operation" name="operation">
+                <option value="add">Сложение</option>
+                <option value="subtract">Вычитание</option>
+                <option value="multiply">Умножение</option>
+                <option value="divide">Деление</option>
+            </select>
+            <br><br>
+            <input type="submit" value="Рассчитать">
+        </form>
+        {% if result is not none %}
+            <h2>Результат: {{ result }}</h2>
+        {% endif %}
+    </body>
+</html>
